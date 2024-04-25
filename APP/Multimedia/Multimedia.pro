@@ -49,7 +49,6 @@ HEADERS += \
     Module/EQ.h \
     Module/algorithmDesign.h \
     Module/app.h \
-    Module/fftw3.h \
     Module/pubchart.h \
     Module/qaesencryption.h \
     Module/qcustomplot.h \
@@ -78,7 +77,6 @@ FORMS += \
 
 UI_DIR=./Ui
 
-LIBS += libfftw3f-3.lib
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -89,3 +87,9 @@ RC_ICONS = vehicle.ico
 
 RESOURCES += \
     res.qrc
+
+
+win32: LIBS += -L$$PWD/./ -llibfftw3f-3
+
+INCLUDEPATH += $$PWD/.
+DEPENDPATH += $$PWD/.

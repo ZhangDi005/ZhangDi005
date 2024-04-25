@@ -1,6 +1,6 @@
 #include <windows.h>
 
-IDI_ICON1	ICON	DISCARDABLE	"D:\\APP\\Multimedia\\vehicle.ico"
+IDI_ICON1	ICON	DISCARDABLE	"D:\\ZhangDi005\\APP\\Multimedia\\vehicle.ico"
 
 VS_VERSION_INFO VERSIONINFO
 	FILEVERSION 0,0,0,0

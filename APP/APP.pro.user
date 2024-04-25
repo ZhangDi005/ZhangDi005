@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.11.0, 2024-04-25T11:12:52. -->
+<!-- Written by QtCreator 4.11.0, 2024-04-25T13:47:14. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -287,8 +287,9 @@
     </valuelist>
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:D:/APP/Multimedia/Multimedia.pro</value>
-    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">D:/APP/Multimedia/Multimedia.pro</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Multimedia2</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:D:/ZhangDi005/APP/Multimedia/Multimedia.pro</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">D:/ZhangDi005/APP/Multimedia/Multimedia.pro</value>
     <value type="QString" key="RunConfiguration.Arguments"></value>
     <value type="bool" key="RunConfiguration.Arguments.multi">false</value>
     <value type="QString" key="RunConfiguration.OverrideDebuggerStartup"></value>
@@ -361,8 +362,9 @@
     </valuelist>
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:D:/APP/MultimediaInfo/MultimediaInfo.pro</value>
-    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">D:/APP/MultimediaInfo/MultimediaInfo.pro</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">MultimediaInfo2</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:D:/ZhangDi005/APP/MultimediaInfo/MultimediaInfo.pro</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">D:/ZhangDi005/APP/MultimediaInfo/MultimediaInfo.pro</value>
     <value type="QString" key="RunConfiguration.Arguments"></value>
     <value type="bool" key="RunConfiguration.Arguments.multi">false</value>
     <value type="QString" key="RunConfiguration.OverrideDebuggerStartup"></value>
@@ -435,8 +437,9 @@
     </valuelist>
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:D:/APP/MultimediaLicense/MultimediaLicense.pro</value>
-    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">D:/APP/MultimediaLicense/MultimediaLicense.pro</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">MultimediaLicense2</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:D:/ZhangDi005/APP/MultimediaLicense/MultimediaLicense.pro</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">D:/ZhangDi005/APP/MultimediaLicense/MultimediaLicense.pro</value>
     <value type="QString" key="RunConfiguration.Arguments"></value>
     <value type="bool" key="RunConfiguration.Arguments.multi">false</value>
     <value type="QString" key="RunConfiguration.OverrideDebuggerStartup"></value>
