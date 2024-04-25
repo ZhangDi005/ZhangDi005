@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/prefix1">
+        <file>C:/Users/ari_m/Desktop/vehicle.png</file>
+    </qresource>
+</RCC>

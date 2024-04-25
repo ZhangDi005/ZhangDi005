@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/image">
+        <file>images/loudspeaker_back.png</file>
+        <file>images/loudspeaker_back_clicked.png</file>
+        <file>images/loudspeaker_font.png</file>
+        <file>images/loudspeaker_font_clicked.png</file>
+        <file>images/loudspeaker_left.png</file>
+        <file>images/loudspeaker_left_clicked.png</file>
+        <file>images/loudspeaker_right.png</file>
+        <file>images/loudspeaker_right_clicked.png</file>
+        <file>images/seat.png</file>
+        <file>images/seat_checked.png</file>
+        <file>images/vehicle.png</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>qss/givenStyle.qss</file>
+        <file>qss/globalStyle.qss</file>
+        <file>qss/two.qss</file>
+    </qresource>
+</RCC>
