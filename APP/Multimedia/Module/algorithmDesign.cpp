@@ -81,9 +81,9 @@ void fft(AudioData &audio)
         double magnitude = sqrt(outData[i][0] * outData[i][0] + outData[i][1] * outData[i][1]);
         double phase = atan2f(outData[i][1], outData[i][0]);
         audio.getFreq().append(freq);
-//        double magnitude1 = magnitude / totalSamples * 2;
+        double magnitude1 = magnitude / totalSamples * 2;
         double ref = 1;
-        double magnitude2 = 20 * log10(magnitude / ref);
+        double magnitude2 = 20 * log10(magnitude1 / ref);
         audio.getMagnitude().append(magnitude2);
         audio.getPhase().append(phase * (180/3.1415926));
     }
@@ -112,9 +112,9 @@ F_M_P fft(QVector<float> data)
         double magnitude = sqrt(outData[i][0] * outData[i][0] + outData[i][1] * outData[i][1]);
         double phase = atan2f(outData[i][1], outData[i][0]);
         fmp.freq.append(freq);
-//        double magnitude1 = magnitude / totalSamples * 2;
+        double magnitude1 = magnitude / totalSamples * 2;
         double ref = 1;
-        double magnitude2 = 20 * log10(magnitude / ref);
+        double magnitude2 = 20 * log10(magnitude1 / ref);
         fmp.magnitude.append(magnitude2);
         fmp.phase.append(phase * (180/3.1415926));
     }
