@@ -1,5 +1,5 @@
 #include "audiodata.h"
-
+#include <QDebug>
 size_t get_DATA_Pos(QString filePath)
 {
     std::ifstream file(filePath.toLocal8Bit().toStdString(), std::ios::binary);
@@ -62,11 +62,11 @@ bool AudioData::init(QString filePath)
 
     // 计算音频数据的总采样数
     uint32_t totalSamples = m_dataSize / bytesPerSample;
-
     char *data = (char*)malloc(m_dataSize);
     file.read(data, m_dataSize);
     file.close();
-    for (int i = 0; i < totalSamples; i++) {
+    if (totalSamples < 100000) return false; // 正常情况 数据永远大于10000，避免程序崩溃
+    for (int i = 0; i < totalSamples; i++) { // 对于所有fft的幅值图，取原始数据的[0,100000]范围的数据；
         if (bytesPerSample == 2)
             m_data << ((short*)data)[i];
         else if (bytesPerSample == 4)

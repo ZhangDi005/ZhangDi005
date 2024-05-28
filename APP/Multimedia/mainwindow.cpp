@@ -41,6 +41,7 @@ void MainWindow::on_actionAdgust_triggered()
 {
     ui->stackedWidget->setCurrentIndex(STACKWIG::ADGUST);
     ui->adgustMag->upData();
+    ui->adgustMag->upDataRemark();
 }
 
 void MainWindow::on_actionGather_triggered()

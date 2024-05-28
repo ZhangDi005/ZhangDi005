@@ -32,6 +32,7 @@ public:
     void setYaxisRange(QPair<int, int> pair);
     void upDataAlonePlot(QString name, const QVector<double> &key, const QVector<double> &value);
     void setChartRange();
+    void updata();
 private slots:
     void mousePress(QMouseEvent* mevent);
     void mouseMove(QMouseEvent *mevent);

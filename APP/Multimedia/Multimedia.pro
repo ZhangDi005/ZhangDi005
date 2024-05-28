@@ -23,6 +23,7 @@ SOURCES += \
     Adgust/eqitem.cpp \
     Gather/audiodata.cpp \
     Gather/calculatemag.cpp \
+    Module/CPchip.cpp \
     Module/EQ.cpp \
     Module/algorithmDesign.cpp \
     Module/app.cpp \
@@ -46,6 +47,7 @@ HEADERS += \
     Gather/audiodata.h \
     Gather/calculatemag.h \
     LodeQss.h \
+    Module/CPchip.h \
     Module/EQ.h \
     Module/algorithmDesign.h \
     Module/app.h \

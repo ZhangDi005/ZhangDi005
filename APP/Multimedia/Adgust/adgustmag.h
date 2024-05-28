@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QPair>
+#include <QButtonGroup>
 #include "Gather/calculatemag.h"
 #include "channelitem.h"
 #include "Module/app.h"
@@ -34,6 +35,7 @@ public:
     explicit AdgustMag(QWidget *parent = nullptr);
     ~AdgustMag();
     void upData();
+    void upDataRemark();
     void showPlot();
     void aloneShowPort();
 //    void rowShowPort(); 右
@@ -76,6 +78,8 @@ private slots:
 
     void on_checkBox_clicked(bool checked);
 
+    void on_modeSpeakerBox_currentIndexChanged(int index);
+
 private:
     EQ::Eq_ata *getEqata(EqData eqData);
     F_M_P channelToFmp(Channel channel);
@@ -84,12 +88,14 @@ private:
     void dataGainProces(double gain, QVector<float> &data);
     void invert(QVector<float> &data);
     Ui::AdgustMag *ui;
+    QButtonGroup *m_BtnGroup;
     SPACE m_space = SPACE::FRONT;
     LOCATION m_location = LOCATION::DRIVER;
     SMOOTH smooth = SMOOTH::onetwelfth;
     QString m_copyId;
     QAction *m_action;
     QMenu *m_menu;
+    CURVEMODE m_curvetype = CURVEMODE::dbFs;
 };
 
 #endif // ADGUSTMAG_H

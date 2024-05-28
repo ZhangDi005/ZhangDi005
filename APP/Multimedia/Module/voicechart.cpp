@@ -174,6 +174,30 @@ void VoiceChart::setChartRange()
     }
 }
 
+void VoiceChart::updata()
+{
+    if(tracer->graph() == nullptr)
+    {
+        return;
+    }
+    if(tracer->graph()->data()->isEmpty())
+    {
+        return;
+    }
+    if(tracer->visible())
+    {
+        if(tracerGraph)
+        {
+            double x = ui->chart->xAxis->pixelToCoord(mapFromGlobal(QCursor().pos()).x());
+            tracer->setGraphKey(x);             //将游标横坐标设置成刚获得的横坐标数据x
+            //tracer->setInterpolating(true);   //自动计算y值,若只想看已有点,不需要这个
+            tracer->updatePosition();           //使得刚设置游标的横纵坐标位置生效
+            tracerLabel->setText(QString("x:%1\ny:%2").arg(tracer->position->key()).arg(tracer->position->value()));
+            ui->chart->replot(QCustomPlot::rpQueuedReplot);
+        }
+    }
+}
+
 void VoiceChart::init()
 {
 //    QLinearGradient plotGradient;
@@ -271,32 +295,9 @@ void VoiceChart::init()
 
     //lambda表达式 mouseMoveEvent
     connect(ui->chart,&QCustomPlot::mouseMove,[=](QMouseEvent* event) {
-        if(tracer->graph() == nullptr)
-        {
-            return;
-        }
-        if(tracer->graph()->data()->isEmpty())
-        {
-            return;
-        }
-        if(tracer->visible())
-        {
-            if(tracerGraph)
-            {
-                double x = ui->chart->xAxis->pixelToCoord(event->pos().x());
-                tracer->setGraphKey(x);             //将游标横坐标设置成刚获得的横坐标数据x
-                //tracer->setInterpolating(true);   //自动计算y值,若只想看已有点,不需要这个
-                tracer->updatePosition();           //使得刚设置游标的横纵坐标位置生效
-                tracerLabel->setText(QString("x:%1\ny:%2").arg(tracer->position->key()).arg(tracer->position->value()));
-                ui->chart->replot(QCustomPlot::rpQueuedReplot);
-            }
-        }
+        updata();
     });
 
-    //lambda表达式 mouseMoveEvent
-    connect(ui->chart,&QCustomPlot::mouseMove,[=](QMouseEvent* event){
-
-    });
     QAction * autoRange = new QAction("自动范围", this);
     QAction * setRange = new QAction("设置范围", this);
     QMenu * freq_menu = new QMenu(this);
@@ -361,6 +362,7 @@ void VoiceChart::slot_SelectionChanged()
     }
     tracer->setVisible(tracerGraph);
     tracerLabel->setVisible(tracerGraph);
+    updata();
 }
 
 

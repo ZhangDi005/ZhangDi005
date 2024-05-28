@@ -18,14 +18,16 @@ public:
     explicit DraftBtn(int i, QPushButton *parent = nullptr);
     ~DraftBtn();
     void mousePressEvent(QMouseEvent *event);
+    void valid();
 signals:
-    void upData();
+    void backupData(int id);
+    void upData(QString remark);
 
 private:
     Ui::DraftBtn *ui;
     QAction * m_save;
+    QAction * m_delete;
     QMenu * m_menu;
-    QList<Channel> m_project;
 };
 
 #endif // DRAFTBTN_H

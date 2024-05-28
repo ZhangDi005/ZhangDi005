@@ -67,6 +67,22 @@ struct EqData {
     friend QDataStream & operator<<(QDataStream &stream, const EqData &info);
     friend QDataStream & operator>>(QDataStream &stream, EqData &info);
 };
+
+struct OverAll {
+    ChannelData m_channelData;
+    QVector<EqData> m_eq;
+    friend QDataStream & operator<<(QDataStream &stream, const OverAll &info);
+    friend QDataStream & operator>>(QDataStream &stream, OverAll &info);
+};
+
+struct BackupData {
+    int m_flag;
+    QString m_remark;
+    QMap<QString, OverAll> m_overAll;
+    friend QDataStream & operator<<(QDataStream &stream, const BackupData &info);
+    friend QDataStream & operator>>(QDataStream &stream, BackupData &info);
+};
+
 struct Channel{
     QString channelName;
     bool isTargetCurve = false;
@@ -107,6 +123,11 @@ enum SMOOTH {
     oneForty_eighth = 48
 };
 
+enum CURVEMODE {
+    dbFs = 0,
+    SPI
+};
+
 class Add {
 public:
     void operator+=(QVector<float> datas);
@@ -116,7 +137,7 @@ private:
 };
 
 void fft(AudioData &audio);
-F_M_P fft(QVector<float> data);
+F_M_P fft(QVector<float> data, CURVEMODE mode);
 QVector<float> avg(Add &add, int divisor);
 void m_mid(QVector<float> &data, QPair<float, float> startAndStop);
 double *vectorToArray(QVector<float> vec);

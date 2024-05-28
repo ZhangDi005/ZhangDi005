@@ -47,7 +47,15 @@ bool ChannelItem::eventFilter(QObject *obj, QEvent *event)
         if (event->type() == QEvent::MouseButtonPress) {
             QMouseEvent *e = static_cast<QMouseEvent *>(event);
             if(e->button() == Qt::RightButton) {
-                m_menu->exec(QCursor::pos());
+                QList<Channel> &project = App::instance().getProject();
+                for (int i = 0; i < project.size(); i++) {
+                    if (project.at(i).channelName == ui->name->text()) {
+                        if (project.at(i).isTargetCurve) {
+                            m_menu->exec(QCursor::pos());
+                            break;
+                        }
+                    }
+                }
                 return true;
             }
         }

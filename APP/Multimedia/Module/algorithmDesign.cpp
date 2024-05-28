@@ -27,7 +27,7 @@ QDataStream & operator<<(QDataStream &stream, const AudioDataManage &info)
 {
     AudioData audio_2 = info.audioData[2];
     stream<<audio_2.getData();
-    AudioData audio_3 = info.audioData[2];
+    AudioData audio_3 = info.audioData[3];
     stream<<audio_3.getData();
     return stream;
 }
@@ -93,7 +93,7 @@ void fft(AudioData &audio)
     fftwf_free(outData);
 }
 
-F_M_P fft(QVector<float> data)
+F_M_P fft(QVector<float> data, CURVEMODE mode)
 {
     uint32_t totalSamples = data.size();
     fftwf_complex* inData = reinterpret_cast<fftwf_complex*>(fftwf_malloc(sizeof(fftwf_complex) * totalSamples));
@@ -112,10 +112,16 @@ F_M_P fft(QVector<float> data)
         double magnitude = sqrt(outData[i][0] * outData[i][0] + outData[i][1] * outData[i][1]);
         double phase = atan2f(outData[i][1], outData[i][0]);
         fmp.freq.append(freq);
-        double magnitude1 = magnitude / totalSamples * 2;
-        double ref = 1;
-        double magnitude2 = 20 * log10(magnitude1 / ref);
-        fmp.magnitude.append(magnitude2);
+        switch (mode) {
+            case (CURVEMODE::dbFs): {
+                fmp.magnitude.append(20 * log10(magnitude / 1));
+                break;
+            }
+            case (CURVEMODE::SPI) : {
+                fmp.magnitude.append(20 * log10(magnitude * 7943282));
+                break;
+            }
+        }
         fmp.phase.append(phase * (180/3.1415926));
     }
     // 释放内存和FFTW计划
@@ -370,5 +376,34 @@ QDataStream & operator>>(QDataStream &stream, EqData &info)
     stream>>info.m_gain;
     stream>>info.m_q;
     stream>>info.m_selected;
+    return stream;
+}
+
+QDataStream & operator<<(QDataStream &stream, const OverAll &info)
+{
+    stream<<info.m_channelData;
+    stream<<info.m_eq;
+    return stream;
+}
+
+QDataStream & operator>>(QDataStream &stream, OverAll &info)
+{
+    stream>>info.m_channelData;
+    stream>>info.m_eq;
+    return stream;
+}
+
+QDataStream & operator<<(QDataStream &stream, const BackupData &info)
+{
+    stream<<info.m_flag;
+    stream<<info.m_remark;
+    stream<<info.m_overAll;
+    return stream;
+}
+QDataStream & operator>>(QDataStream &stream, BackupData &info)
+{
+    stream>>info.m_flag;
+    stream>>info.m_remark;
+    stream>>info.m_overAll;
     return stream;
 }

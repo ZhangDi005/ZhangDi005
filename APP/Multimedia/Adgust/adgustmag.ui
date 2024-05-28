@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1458</width>
+    <width>1513</width>
     <height>541</height>
    </rect>
   </property>
@@ -200,6 +200,26 @@
            <number>5</number>
           </property>
           <item>
+           <widget class="QComboBox" name="modeSpeakerBox">
+            <property name="maximumSize">
+             <size>
+              <width>80</width>
+              <height>24</height>
+             </size>
+            </property>
+            <item>
+             <property name="text">
+              <string>dbFs</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>SPL</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
            <spacer name="horizontalSpacer">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -260,13 +280,26 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_8">
           <property name="spacing">
-           <number>0</number>
+           <number>5</number>
+          </property>
+          <property name="leftMargin">
+           <number>5</number>
           </property>
           <property name="rightMargin">
            <number>5</number>
           </property>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_D"/>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_12">
+            <property name="text">
+             <string>Remark:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit"/>
           </item>
           <item>
            <spacer name="horizontalSpacer_2">

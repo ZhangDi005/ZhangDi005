@@ -16,11 +16,18 @@ AdgustMag::AdgustMag(QWidget *parent) :
     ui->splitter_3->setStretchFactor(1, 15);
     ui->splitter->setStretchFactor(0, 40);
     ui->splitter->setStretchFactor(1, 60);
-    for (int i = 0; i < 8; i++) {
-        DraftBtn *btn = new DraftBtn(i + 1);
-        connect(btn, &DraftBtn::upData, [=](){
+    m_BtnGroup = new QButtonGroup(this);
+    m_BtnGroup->setExclusive(true);
+    for (int i = 1; i < 9; i++) {
+        DraftBtn *btn = new DraftBtn(i);
+        m_BtnGroup->addButton(btn, i);
+        connect(btn, &DraftBtn::upData, [=](QString remark){
+            ui->lineEdit->setText(remark);
             on_speakerBox_currentIndexChanged(ui->speakerBox->currentText());
             showPlot();
+        });
+        connect(btn, &DraftBtn::backupData, [=](int id){
+            App::instance().syncSave(id, ui->lineEdit->text());
         });
         ui->horizontalLayout_D->addWidget(btn);
     }
@@ -39,6 +46,15 @@ AdgustMag::AdgustMag(QWidget *parent) :
     connect(ui->listWidget->model(), &QAbstractItemModel::rowsMoved, this, [=](const QModelIndex &parent, int start, int end, const QModelIndex &destination, int row) {
         QList<Channel> &project = App::instance().getProject();
         project.move(start, row-1);
+        QSignalBlocker blocker(ui->speakerBox);
+        QString currentText = ui->speakerBox->currentText();
+        ui->speakerBox->clear();
+        for (auto channel : project) {
+            if (channel.isTargetCurve || channel.seatMag_mIsEmpty()) {
+                ui->speakerBox->addItem(channel.channelName);
+            }
+        }
+        ui->speakerBox->setCurrentText(currentText);
     });
     connect(ui->listWidget_EQ->model(), &QAbstractItemModel::rowsMoved, this, [=](const QModelIndex &parent, int start, int end, const QModelIndex &destination, int row) {
         QList<Channel> &project = App::instance().getProject();
@@ -76,11 +92,19 @@ void AdgustMag::upData()
     showPlot();
 }
 
+void AdgustMag::upDataRemark()
+{
+    QList<BackupData> backup = App::instance().getBackupData();
+    for (auto data : backup) {
+        static_cast<DraftBtn*>(m_BtnGroup->button(data.m_flag))->valid();
+    }
+}
+
 void AdgustMag::showPlot()
 {
     aloneShowPort();// 左
-//    on_spaceAllBox_currentIndexChanged(ui->spaceAllBox->currentIndex());//右
-//    phaseShowPort(); // 下
+    on_spaceAllBox_currentIndexChanged(ui->spaceAllBox->currentIndex());//右
+    phaseShowPort(); // 下
 }
 
 F_M_P AdgustMag::channelToFmp(Channel channel)
@@ -134,7 +158,7 @@ F_M_P AdgustMag::channelToFmp(Channel channel)
                         data = eq.filter(data, ata, item.m_order + 1);
                 }
             }
-            fmp = fft(data);
+            fmp = fft(data, m_curvetype);
             fmp.name = channel.channelName;
             break;
         }
@@ -154,7 +178,7 @@ F_M_P AdgustMag::channelToFmp(Channel channel)
                         data = eq.filter(data, ata, item.m_order + 1);
                 }
             }
-            fmp = fft(data);
+            fmp = fft(data, m_curvetype);
             fmp.name = channel.channelName;
             break;
         }
@@ -178,7 +202,7 @@ F_M_P AdgustMag::channelToFmp(Channel channel)
                         data = eq.filter(data, ata, item.m_order + 1);
                 }
             }
-            fmp = fft(data);
+            fmp = fft(data, m_curvetype);
             fmp.name = channel.channelName + "ROW";
             break;
         }
@@ -201,7 +225,7 @@ F_M_P AdgustMag::channelToFmp(Channel channel)
                         data = eq.filter(data, ata, item.m_order + 1);
                 }
             }
-            fmp = fft(data);
+            fmp = fft(data, m_curvetype);
             fmp.name = channel.channelName;
             break;
         }
@@ -221,7 +245,7 @@ F_M_P AdgustMag::channelToFmp(Channel channel)
                         data = eq.filter(data, ata, item.m_order + 1);
                 }
             }
-            fmp = fft(data);
+            fmp = fft(data, m_curvetype);
             fmp.name = channel.channelName;
             break;
         }
@@ -245,7 +269,7 @@ F_M_P AdgustMag::channelToFmp(Channel channel)
                         data = eq.filter(data, ata, item.m_order + 1);
                 }
             }
-            fmp = fft(data);
+            fmp = fft(data, m_curvetype);
             fmp.name = channel.channelName + "row";
             break;
         }
@@ -310,7 +334,7 @@ void AdgustMag::phaseShowPort()
                                 data = eq.filter(data, ata, item.m_order + 1);
                         }
                     }
-                    fmp = fft(data);
+                    fmp = fft(data, m_curvetype);
                     fmp.name = channel.channelName;
                     break;
                 }
@@ -328,7 +352,7 @@ void AdgustMag::phaseShowPort()
                                 data = eq.filter(data, ata, item.m_order + 1);
                         }
                     }
-                    fmp = fft(data);
+                    fmp = fft(data, m_curvetype);
                     fmp.name = channel.channelName;
                 }
                 case (LOCATION::ROW) :
@@ -353,7 +377,7 @@ void AdgustMag::phaseShowPort()
                                 data = eq.filter(data, ata, item.m_order + 1);
                         }
                     }
-                    fmp = fft(data);
+                    fmp = fft(data, m_curvetype);
                     fmp.name = channel.channelName;
                     break;
                 }
@@ -371,7 +395,7 @@ void AdgustMag::phaseShowPort()
                                 data = eq.filter(data, ata, item.m_order + 1);
                         }
                     }
-                    fmp = fft(data);
+                    fmp = fft(data, m_curvetype);
                     fmp.name = channel.channelName;
                     break;
                 }
@@ -464,18 +488,18 @@ void AdgustMag::on_spaceAllBox_currentIndexChanged(int index)
     F_M_P fmp;
     if (count > 0) {
         fmp.init();
-        fmp = fft(avg(add_dr, count));
+        fmp = fft(avg(add_dr, count), m_curvetype);
         fmp.name = "driver";
         fmps_overall.append(fmp);
         fmp.init();
-        fmp = fft(avg(add_ps, count));
+        fmp = fft(avg(add_ps, count), m_curvetype);
         fmp.name = "passenger";
         fmps_overall.append(fmp);
         Add add_row;
         add_row += add_dr.getData();
         add_row += add_ps.getData();
         fmp.init();
-        fmp = fft(avg(add_row, 2));
+        fmp = fft(avg(add_row, 2), m_curvetype);
         fmp.name = "driver+pass";
         fmps_overall.append(fmp);
     }
@@ -785,4 +809,11 @@ void AdgustMag::on_checkBox_clicked(bool checked)
     }
     upData();
     showPlot();
+}
+
+void AdgustMag::on_modeSpeakerBox_currentIndexChanged(int index)
+{
+    m_curvetype = CURVEMODE(index);
+    aloneShowPort();// 左
+    on_spaceAllBox_currentIndexChanged(ui->spaceAllBox->currentIndex());//右
 }
