@@ -3,7 +3,10 @@
 
 #include <QMap>
 #include <QDataStream>
+#include <QElapsedTimer>
+#include <QDebug>
 #include "Gather/audiodata.h"
+#include "CPchip.h"
 #include "fftw3.h"
 
 #define NUM_MIC 6
@@ -145,4 +148,6 @@ QVector<float> arrayToVector(double *bytes, size_t len);
 
 // 平滑处理
 void narrow_to_octave(QVector<float> &OUT_one_twenty_fourth_freq_preferred, QVector<float> &OUT_bands, QVector<float> frequencies, QVector<float> measurements, int N_Octave);
+void toSmooth(F_M_P &fmp);
+void toNegation_Y(F_M_P &fmp);
 #endif // FFT_H

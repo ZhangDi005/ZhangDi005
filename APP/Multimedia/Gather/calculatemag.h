@@ -28,8 +28,8 @@ private slots:
 
 private:
     Ui::CalculateMag *ui;
-    int speakerId = -1;
-    int seatId = -1;
+    int speakerId = 0;
+    int seatId = 0;
     QButtonGroup *speaker;
     QButtonGroup *location;
 private:

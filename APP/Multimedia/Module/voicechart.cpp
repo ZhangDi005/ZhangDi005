@@ -57,7 +57,7 @@ void VoiceChart::setData(AudioDataManage audioDatas)
         else
             ;
     }
-    ui->chart->replot(QCustomPlot::rpQueuedReplot);
+    rangeSelfAdaption();
 }
 
 void VoiceChart::setData(QVector<F_M_P> fmps)
@@ -82,6 +82,7 @@ void VoiceChart::setData(QVector<F_M_P> fmps)
         else
             ;
     }
+//    ui->chart->rescaleAxes();
     ui->chart->replot(QCustomPlot::rpQueuedReplot);
 }
 

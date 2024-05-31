@@ -30,6 +30,10 @@ void App::syncSave(int id, QString remark)
         overAll.insert(channel.channelName, over);
     }
     backupData.m_overAll = overAll;
+    for (int i = 0; i < m_backupData.size(); i++) {
+        if (m_backupData.at(i).m_flag == id)
+            m_backupData.removeAt(i);
+    }
     m_backupData.push_back(backupData);
 }
 

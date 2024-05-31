@@ -288,19 +288,26 @@ void AdgustMag::aloneShowPort()
             fmps_specific.append(channelToFmp(channel));
         }
     }
-    // 平滑算法
+    // 平滑算法 1
     for (auto &fmp : fmps_specific) {
         if (!fmp.isTargetCurve) {
+            if (m_curvetype == CURVEMODE::dbFs)
+                toNegation_Y(fmp);
+//            toSmooth(fmp);
             QVector<float> out_freq,out_magnitude,freq,magnitude;
             narrow_to_octave(out_freq,out_magnitude,fmp.freq,fmp.magnitude,smooth);
             for (size_t i = 0; i < out_freq.size(); i++) {
-                if (out_freq.at(i) > 10) {
+                if (out_freq.at(i) > 15) {
                     freq.push_back(out_freq.at(i));
                     magnitude.push_back(out_magnitude.at(i));
                 }
             }
             fmp.freq = freq;
             fmp.magnitude = magnitude;
+            // 平滑算法 2
+            if (m_curvetype == CURVEMODE::dbFs)
+                toNegation_Y(fmp);
+//            toSmooth(fmp);
         }
     }
     ui->specificChart->setData(fmps_specific);
@@ -411,14 +418,53 @@ void AdgustMag::phaseShowPort()
     ui->phaseChart->setData(fmps_specific);
 }
 
+QVector<float> AdgustMag::AddToOnleOne(Channel channel, int loca)
+{
+    QVector<float> data = channel.seatMag_m.value(loca);
+    if (channel.m_channelData.m_invert)
+        invert(data);
+    dataDelayProces(channel.m_channelData.m_delay, data);
+    dataGainProces(channel.m_channelData.m_gain, data);
+    for (auto item : channel.m_eq) {
+        if ((item.m_selected == true) && (item.m_fc > 0)) {
+            EQ::Eq_ata *ata = getEqata(item);
+            if (ata != nullptr)
+                data = EQ::filter(data, ata, item.m_order + 1);
+        }
+    }
+    return data;
+}
+
+QVector<F_M_P> AdgustMag::AddToFFT(Add add_dr, Add add_ps, int count, QString loca)
+{
+    QVector<F_M_P> fmps;
+    F_M_P fmp;
+    fmp.init();
+    fmp = fft(avg(add_dr, count), m_curvetype);
+    fmp.name = "driver_" + loca;
+    fmps.append(fmp);
+    fmp.init();
+    fmp = fft(avg(add_ps, count), m_curvetype);
+    fmp.name = "pass_" + loca;
+    fmps.append(fmp);
+    Add add_row;
+    add_row += add_dr.getData();
+    add_row += add_ps.getData();
+    fmp.init();
+    fmp = fft(avg(add_row, 2), m_curvetype);
+    fmp.name = "row_" + loca;
+    fmps.append(fmp);
+    return fmps;
+}
+
 void AdgustMag::on_spaceAllBox_currentIndexChanged(int index)
 {
     ui->overallChart->tracerClear();
     EQ eq;
     QVector<F_M_P> target;
     QVector<F_M_P> fmps_overall;
-    Add add_dr;
-    Add add_ps;
+    Add add_dr_f, add_dr_r;
+    Add add_ps_f, add_ps_r;
     QList<Channel> project = App::instance().getProject();
     int count = 0;
     for (auto channel : project) {
@@ -430,95 +476,48 @@ void AdgustMag::on_spaceAllBox_currentIndexChanged(int index)
         }
         count++;
         if (SPACE(index) == SPACE::FRONT) {
-            QVector<float> data_lf = channel.seatMag_m.value(0);
-            if (channel.m_channelData.m_invert)
-                invert(data_lf);
-            dataDelayProces(channel.m_channelData.m_delay, data_lf);
-            dataGainProces(channel.m_channelData.m_gain, data_lf);
-            for (auto item : channel.m_eq) {
-                if ((item.m_selected == true) && (item.m_fc > 0)) {
-                    EQ::Eq_ata *ata = getEqata(item);
-                    if (ata != nullptr)
-                        data_lf = eq.filter(data_lf, ata, item.m_order + 1);
-                }
-            }
-            add_dr += data_lf;
-            QVector<float> data_rf = channel.seatMag_m.value(1);
-            if (channel.m_channelData.m_invert)
-                invert(data_rf);
-            dataDelayProces(channel.m_channelData.m_delay, data_rf);
-            dataGainProces(channel.m_channelData.m_gain, data_rf);
-            for (auto item : channel.m_eq) {
-                if ((item.m_selected == true) && (item.m_fc > 0)) {
-                    EQ::Eq_ata *ata = getEqata(item);
-                    if (ata != nullptr)
-                        data_rf = eq.filter(data_rf, ata, item.m_order + 1);
-                }
-            }
-            add_ps += data_rf;
+            add_dr_f += AddToOnleOne(channel, 0);
+            add_ps_f += AddToOnleOne(channel, 1);
         } else if (SPACE(index) == SPACE::REAR) {
-            QVector<float> data_ls = channel.seatMag_m.value(2);
-            if (channel.m_channelData.m_invert)
-                invert(data_ls);
-            dataDelayProces(channel.m_channelData.m_delay, data_ls);
-            dataGainProces(channel.m_channelData.m_gain, data_ls);
-            for (auto item : channel.m_eq) {
-                if ((item.m_selected == true) && (item.m_fc > 0)) {
-                    EQ::Eq_ata *ata = getEqata(item);
-                    if (ata != nullptr)
-                        data_ls = eq.filter(data_ls, ata, item.m_order + 1);
-                }
-            }
-            add_dr += data_ls;
-            QVector<float> data_rs = channel.seatMag_m.value(3);
-            if (channel.m_channelData.m_invert)
-                invert(data_rs);
-            dataDelayProces(channel.m_channelData.m_delay, data_rs);
-            dataGainProces(channel.m_channelData.m_gain, data_rs);
-            for (auto item : channel.m_eq) {
-                if ((item.m_selected == true) && (item.m_fc > 0)) {
-                    EQ::Eq_ata *ata = getEqata(item);
-                    if (ata != nullptr)
-                        data_rs = eq.filter(data_rs, ata, item.m_order + 1);
-                }
-            }
-            add_ps += data_rs;
+            add_dr_r += AddToOnleOne(channel, 2);
+            add_ps_r += AddToOnleOne(channel, 3);
+        } else if (SPACE(index) == SPACE::ROW_ALL) {
+            add_dr_f += AddToOnleOne(channel, 0);
+            add_ps_f += AddToOnleOne(channel, 1);
+            add_dr_r += AddToOnleOne(channel, 2);
+            add_ps_r += AddToOnleOne(channel, 3);
         }
     }
-    F_M_P fmp;
     if (count > 0) {
-        fmp.init();
-        fmp = fft(avg(add_dr, count), m_curvetype);
-        fmp.name = "driver";
-        fmps_overall.append(fmp);
-        fmp.init();
-        fmp = fft(avg(add_ps, count), m_curvetype);
-        fmp.name = "passenger";
-        fmps_overall.append(fmp);
-        Add add_row;
-        add_row += add_dr.getData();
-        add_row += add_ps.getData();
-        fmp.init();
-        fmp = fft(avg(add_row, 2), m_curvetype);
-        fmp.name = "driver+pass";
-        fmps_overall.append(fmp);
+        if (SPACE(index) == SPACE::FRONT) {
+            fmps_overall += AddToFFT(add_dr_f, add_ps_f, count, "Font");
+        } else if (SPACE(index) == SPACE::REAR) {
+            fmps_overall += AddToFFT(add_dr_r, add_ps_r, count, "Rear");
+        } else if (SPACE(index) == SPACE::ROW_ALL) {
+            fmps_overall += AddToFFT(add_dr_f, add_ps_f, count, "Font");
+            fmps_overall += AddToFFT(add_dr_r, add_ps_r, count, "Rear");
+        }
     }
-    fmps_overall += target;
     // 平滑算法
     for (auto &fmp : fmps_overall) {
-        if (!fmp.isTargetCurve) {
-            QVector<float> out_freq,out_magnitude,freq,magnitude;
-            narrow_to_octave(out_freq,out_magnitude,fmp.freq,fmp.magnitude,smooth);
-            for (size_t i = 0; i < out_freq.size(); i++) {
-                if (out_freq.at(i) > 10) {
-                    freq.push_back(out_freq.at(i));
-                    magnitude.push_back(out_magnitude.at(i));
-                }
+        if (m_curvetype == CURVEMODE::dbFs)
+            toNegation_Y(fmp);
+        //            toSmooth(fmp);
+        QVector<float> out_freq,out_magnitude,freq,magnitude;
+        narrow_to_octave(out_freq,out_magnitude,fmp.freq,fmp.magnitude,smooth);
+        for (size_t i = 0; i < out_freq.size(); i++) {
+            if (out_freq.at(i) > 15) {
+                freq.push_back(out_freq.at(i));
+                magnitude.push_back(out_magnitude.at(i));
             }
-            fmp.freq = freq;
-            fmp.magnitude = magnitude;
         }
+        fmp.freq = freq;
+        fmp.magnitude = magnitude;
+        if (m_curvetype == CURVEMODE::dbFs)
+            toNegation_Y(fmp);
+        //            toSmooth(fmp);
     }
+    fmps_overall += target;
     ui->overallChart->setData(fmps_overall);
 }
 

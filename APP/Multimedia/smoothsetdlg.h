@@ -27,7 +27,7 @@ private:
     Ui::SmoothSetDlg *ui;
     QButtonGroup *speaker;
     int m_smooth_BtnId;
-    SMOOTH m_smooth = SMOOTH::onetwelfth;
+    SMOOTH m_smooth = SMOOTH::noSmooth;
 };
 
 #endif // SMOOTHSETDIG_H

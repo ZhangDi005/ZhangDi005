@@ -87,7 +87,7 @@ public:
 	void series(double A0[3], double B0[3]);
 
 	//IN_data输入，OUT_data输出，in_len长度，a为分子系数，b分母系数，number滤波器阶数(系数的数组长度)
-    QVector<float> filter(QVector<float> IN_data_, Eq_ata* ata, int number);
+    static QVector<float> filter(QVector<float> IN_data_, Eq_ata* ata, int number);
 
 	//2阶
 	//EQ_fc  :EQ参数

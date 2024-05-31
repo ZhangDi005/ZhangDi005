@@ -519,6 +519,9 @@
       <property name="checkable">
        <bool>true</bool>
       </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
      </widget>
      <widget class="QPushButton" name="location_LS">
       <property name="geometry">
@@ -687,7 +690,7 @@
        <bool>true</bool>
       </property>
       <property name="checked">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="autoRepeat">
        <bool>false</bool>
@@ -1097,7 +1100,7 @@
    </item>
    <item>
     <widget class="QWidget" name="widget_5" native="true">
-     <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,1,1">
+     <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,1">
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
@@ -1165,7 +1168,7 @@
       </item>
       <item>
        <widget class="QWidget" name="calcu_chart_widget" native="true">
-        <layout class="QVBoxLayout" name="verticalLayout" stretch="0">
+        <layout class="QVBoxLayout" name="verticalLayout">
          <property name="spacing">
           <number>0</number>
          </property>
@@ -1184,24 +1187,6 @@
          <item>
           <widget class="VoiceChart" name="freq_chart" native="true"/>
          </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QWidget" name="phaseWidget" native="true">
-        <layout class="QVBoxLayout" name="verticalLayout_7">
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
          <item>
           <widget class="VoiceChart" name="phase_chart" native="true"/>
          </item>

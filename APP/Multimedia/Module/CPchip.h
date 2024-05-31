@@ -15,13 +15,13 @@ using namespace std;//cout
 class CPchip
 {
 public:
-	CPchip(const double* X, const double* Y, const int n, const double x);
+    CPchip(const float* X, const float* Y, const int n, const float x);
 	~CPchip();
-	int FindIndex(const double* X, const int n, const double x);
-	double ComputeDiff(const double* h, const double* delta, const int n, const int k);
-	double getY() { return y; };
+    int FindIndex(const float* X, const int n, const float x);
+    float ComputeDiff(const float* h, const float* delta, const int n, const int k);
+    float getY() { return y; };
 private:
-	double y;
-	double* h;
-	double* delta;
+    float y;
+    float* h;
+    float* delta;
 };

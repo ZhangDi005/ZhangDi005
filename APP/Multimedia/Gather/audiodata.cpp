@@ -65,8 +65,8 @@ bool AudioData::init(QString filePath)
     char *data = (char*)malloc(m_dataSize);
     file.read(data, m_dataSize);
     file.close();
-    if (totalSamples < 100000) return false; // 正常情况 数据永远大于10000，避免程序崩溃
-    for (int i = 0; i < totalSamples; i++) { // 对于所有fft的幅值图，取原始数据的[0,100000]范围的数据；
+    if (totalSamples < 30000) return false; // 正常情况 数据永远大于30000，避免程序崩溃
+    for (int i = 0; i < 30000; i++) { // 对于所有fft的幅值图，取原始数据的[0,30000]范围的数据；
         if (bytesPerSample == 2)
             m_data << ((short*)data)[i];
         else if (bytesPerSample == 4)

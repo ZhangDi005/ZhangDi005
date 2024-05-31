@@ -295,7 +295,7 @@ void narrow_to_octave(QVector<float> &OUT_one_twenty_fourth_freq_preferred, QVec
         {
             for (int b = 0; b < Nozero_idx.size() - 1; b++)
             {
-                OUT_bands[i] = OUT_bands[i] + (frequencies[Nozero_idx[0] + b + 1] - frequencies[Nozero_idx[0] + b]) * (measurements[Nozero_idx[0] + b + 1] + measurements[Nozero_idx[0] + b]) / 2;
+                OUT_bands[i] = OUT_bands[i] + (frequencies[Nozero_idx[0] + b + 1] - frequencies[Nozero_idx[0] + b]) * abs(measurements[Nozero_idx[0] + b + 1] + measurements[Nozero_idx[0] + b]) / 2;
             }
             OUT_bands[i] = OUT_bands[i] / (frequencies[Nozero_idx[Nozero_idx.size() - 1]] - frequencies[Nozero_idx[0]]);
         }
@@ -406,4 +406,34 @@ QDataStream & operator>>(QDataStream &stream, BackupData &info)
     stream>>info.m_remark;
     stream>>info.m_overAll;
     return stream;
+}
+
+void toSmooth(F_M_P &fmp)
+{
+    //输入vector转数组
+    int count = fmp.freq.size();
+    float* freq = new float[count] {};
+    float* magnitude = new float[count] {};
+    for (int i = 0; i < count; i++) {
+        freq[i] = fmp.freq.at(i);
+        magnitude[i] = fmp.magnitude.at(i);
+    }
+    QVector<float> x,y;
+    for (int i = 0; i < 20000; i++) {
+        x.push_back(i * 4);
+    }
+    for (int i = 0; i < 20000; i++) {
+        CPchip pchip(freq, magnitude, count, i);
+        y.push_back(pchip.getY());
+    }
+    fmp.freq = x;
+    fmp.magnitude = y;
+}
+
+void toNegation_Y(F_M_P &fmp)
+{
+    int count = fmp.magnitude.size();
+    for (int i = 0; i < count; i++) {
+        fmp.magnitude[i] = fmp.magnitude.at(i) * -1;
+    }
 }

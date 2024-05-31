@@ -94,10 +94,10 @@ int main(int argc, char *argv[])
 
 //        qDebug() << decodedString;
 //    }
-//    if (decodedString != result) {
-//        QMessageBox::question(nullptr, "error", "no access");
-//        return -1;
-//    }
+    if (decodedString != result) {
+        QMessageBox::question(nullptr, "error", "no access");
+        return -1;
+    }
     MainWindow w;
     w.show();
     return a.exec();

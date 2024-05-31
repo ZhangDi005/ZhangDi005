@@ -18,7 +18,8 @@ class AdgustMag;
 
 enum SPACE {
     FRONT = 0,
-    REAR
+    REAR,
+    ROW_ALL
 };
 
 enum LOCATION {
@@ -87,11 +88,13 @@ private:
     void dataDelayProces(double delay, QVector<float> &data);
     void dataGainProces(double gain, QVector<float> &data);
     void invert(QVector<float> &data);
+    QVector<float> AddToOnleOne(Channel channel, int loca);
+    QVector<F_M_P> AddToFFT(Add add_dr, Add add_ps, int count, QString loca);
     Ui::AdgustMag *ui;
     QButtonGroup *m_BtnGroup;
     SPACE m_space = SPACE::FRONT;
     LOCATION m_location = LOCATION::DRIVER;
-    SMOOTH smooth = SMOOTH::onetwelfth;
+    SMOOTH smooth = SMOOTH::noSmooth;
     QString m_copyId;
     QAction *m_action;
     QMenu *m_menu;

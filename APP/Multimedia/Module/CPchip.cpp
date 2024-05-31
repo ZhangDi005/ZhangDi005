@@ -1,25 +1,25 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "CPchip.h"
-CPchip::CPchip(const double* X, const double* Y, const int n, const double x)
+CPchip::CPchip(const float* X, const float* Y, const int n, const float x)
 {
 	int k = FindIndex(X, n, x);
-	h = new double[n] {};
-	delta = new double[n] {};
+    h = new float[n] {};
+    delta = new float[n] {};
 	for (int i = 0; i <= n - 2; i++) {
-		h[i] = X[i + 1] - X[i]; //½ÚµãÉÏÔöÁ¿
+		h[i] = X[i + 1] - X[i]; //èŠ‚ç‚¹ä¸Šå¢žé‡
 		if (h[i] < 1e-12) {
-			cout << "X[" << i + 1 << "]=" << X[i + 1] << "²»µÝÔö" << endl;
+			cout << "X[" << i + 1 << "]=" << X[i + 1] << "ä¸é€’å¢ž" << endl;
 			abort();
 		}
-		delta[i] = (Y[i + 1] - Y[i]) / h[i]; //½ÚµãÉÏ²îÉÌ£¬Ïòºó²î·Ö·¨, ×¢Òâµã³ý
+		delta[i] = (Y[i + 1] - Y[i]) / h[i]; //èŠ‚ç‚¹ä¸Šå·®å•†ï¼Œå‘åŽå·®åˆ†æ³•, æ³¨æ„ç‚¹é™¤
 	}
-	double diff1 = ComputeDiff(h, delta, n, k);
-	double diff2 = ComputeDiff(h, delta, n, k + 1);
+    float diff1 = ComputeDiff(h, delta, n, k);
+    float diff2 = ComputeDiff(h, delta, n, k + 1);
 
-	double a = (diff2 + diff1 - 2 * delta[k]) / h[k] / h[k];
-	double b = (-diff2 - 2 * diff1 + 3 * delta[k]) / h[k];
-	double c = diff1;
-	double d = Y[k];
+    float a = (diff2 + diff1 - 2 * delta[k]) / h[k] / h[k];
+    float b = (-diff2 - 2 * diff1 + 3 * delta[k]) / h[k];
+    float c = diff1;
+    float d = Y[k];
 	y = a * pow(x - X[k], 3) + b * pow(x - X[k], 2) + c * (x - X[k]) + d;
 
 	delete[] h;
@@ -35,25 +35,23 @@ CPchip::~CPchip()
 	delta = nullptr;
 }
 
-int CPchip::FindIndex(const double* X, const int n, const double x)
+int CPchip::FindIndex(const float* X, const int n, const float x)
 {
-	/* ÕÒµ½²åÖµÎ»ÖÃ */
+	/* æ‰¾åˆ°æ’å€¼ä½ç½® */
 	if (n < 3) {
-		cout << "pchipÒªÇóÈý¸ö¼°ÒÔÉÏ½Úµã!" << endl;
+		cout << "pchipè¦æ±‚ä¸‰ä¸ªåŠä»¥ä¸ŠèŠ‚ç‚¹!" << endl;
 		abort();
 	}
 	int index = 0;
 	int iBeg = 0;
 	if (x <= X[1]) {
 		index = 0;
-		if (x < X[0]) {
-			cout << "x=" << x << ",pchipÍâ²å£¬¼ÌÐøµ«²»±£Ö¤ÕýÈ·ÐÔ" << endl;
+        if (x < X[0]) {
 		}
 	}
 	else if (x >= X[n - 2]) {
 		index = n - 2;
-		if (x > X[n + 1]) {
-			cout << "x=" << x << ",pchipÍâ²å£¬¼ÌÐøµ«²»±£Ö¤ÕýÈ·ÐÔ" << endl;
+        if (x > X[n + 1]) {
 		}
 	}
 	else {
@@ -78,11 +76,11 @@ int CPchip::FindIndex(const double* X, const int n, const double x)
 	return index;
 }
 
-double CPchip::ComputeDiff(const double* h, const double* delta, const int n, const int k)
+float CPchip::ComputeDiff(const float* h, const float* delta, const int n, const int k)
 {
-	double diff = 0;
+    float diff = 0;
 	if (k == 0) {
-		double t = ((2 * h[0] + h[1]) * delta[0] - h[0] * delta[1]) / (h[0] + h[1]);
+        float t = ((2 * h[0] + h[1]) * delta[0] - h[0] * delta[1]) / (h[0] + h[1]);
 		if (t * delta[0] <= 0)
 			diff = 0;
 		else if (delta[0] * delta[1] < 0 && abs(t) > abs(3 * delta[0]))
@@ -91,7 +89,7 @@ double CPchip::ComputeDiff(const double* h, const double* delta, const int n, co
 			diff = t;
 	}
 	else if (k == n - 1) {
-		double t = ((2 * h[n - 2] + h[n - 3]) * delta[n - 2] - h[n - 2] * delta[n - 3]) / (h[n - 2] + h[n - 3]);
+        float t = ((2 * h[n - 2] + h[n - 3]) * delta[n - 2] - h[n - 2] * delta[n - 3]) / (h[n - 2] + h[n - 3]);
 		if (t * delta[n - 2] <= 0)
 			diff = 0;
 		else if (delta[n - 2] * delta[n - 3] < 0 && abs(t) > abs(3 * delta[n - 2]))
@@ -105,8 +103,8 @@ double CPchip::ComputeDiff(const double* h, const double* delta, const int n, co
 		else if (delta[k] * delta[k - 1] > 0 && abs(h[k] - h[k - 1]) < 1e-12)
 			diff = 2 * delta[k] * delta[k - 1] / (delta[k] + delta[k - 1]);
 		else {
-			double w1 = 2 * h[k] + h[k - 1];
-			double w2 = h[k] + 2 * h[k - 1];
+            float w1 = 2 * h[k] + h[k - 1];
+            float w2 = h[k] + 2 * h[k - 1];
 			diff = delta[k] * delta[k - 1] / (w1 * delta[k] + w2 * delta[k - 1]) * (w1 + w2);
 		}
 	}

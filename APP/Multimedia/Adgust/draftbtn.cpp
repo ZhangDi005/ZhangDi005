@@ -16,7 +16,6 @@ DraftBtn::DraftBtn(int i, QPushButton *parent) :
     m_menu = new QMenu(this);
     m_menu->addAction(m_save);
     m_menu->addAction(m_delete);
-    m_delete->setVisible(false);
     connect(m_save, &QAction::triggered, [=]() {
         emit backupData(text().toInt());
         valid();
@@ -24,8 +23,6 @@ DraftBtn::DraftBtn(int i, QPushButton *parent) :
     connect(m_delete, &QAction::triggered, [=]() {
         App::instance().syncDelete(text().toInt());
         this->setStyleSheet("QPushButton{width: 26px; height: 26px;border: 2px solid #FFFFFF;}");
-        m_save->setVisible(true);
-        m_delete->setVisible(false);
     });
 }
 
@@ -71,6 +68,4 @@ void DraftBtn::valid()
     this->setStyleSheet("QPushButton{width: 26px; height: 26px;border: 2px solid #00FF00; background: transparent;}\
                          QPushButton:checked{width: 26px; height: 26px;border: 2px solid #00FF00; background-color: rgb(0, 255, 0);}");
 
-    m_save->setVisible(false);
-    m_delete->setVisible(true);
 }
