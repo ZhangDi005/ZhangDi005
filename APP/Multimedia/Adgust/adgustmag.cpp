@@ -10,8 +10,8 @@ AdgustMag::AdgustMag(QWidget *parent) :
     ui->overallChart->setChartType(CHART_TYPE::MAGNITUDE_CHART);
     ui->phaseChart->setChartType(CHART_TYPE::PHASE_CHART);
     ui->phaseChart->setYaxisRange(QPair<int, int>(-200, 200));
-    ui->listWidget->setGridSize(QSize(292, 35));  // 设置item的宽高
-    ui->listWidget_EQ->setGridSize(QSize(485, 35));
+//    ui->listWidget->setGridSize(QSize(292, 35));  // 设置item的宽高
+//    ui->listWidget_EQ->setGridSize(QSize(485, 35));
     ui->splitter_3->setStretchFactor(0, 85);
     ui->splitter_3->setStretchFactor(1, 15);
     ui->splitter->setStretchFactor(0, 40);
@@ -61,6 +61,7 @@ AdgustMag::AdgustMag(QWidget *parent) :
         for (auto &channel : project) {
             if (channel.channelName == ui->speakerBox->currentText()) {
                 channel.m_eq.move(start, row-1);
+                on_speakerBox_currentIndexChanged(ui->speakerBox->currentText());
                 break;
             }
         }
@@ -85,6 +86,7 @@ void AdgustMag::upData()
             connect(item, &ChannelItem::dataChanged, this, &AdgustMag::showPlot);
             connect(item, &ChannelItem::channelChanged, this, &AdgustMag::upData);
             QListWidgetItem * listItem = new QListWidgetItem(ui->listWidget);
+            listItem->setSizeHint(QSize(312, 31));
             ui->listWidget->setItemWidget(listItem, item);
             continue;
         }
@@ -560,18 +562,6 @@ void AdgustMag::on_locationComBox_currentIndexChanged(int index)
     aloneShowPort();
 }
 
-void AdgustMag::listWidget_EqClear()
-{
-    int count = ui->listWidget_EQ->count();
-    if (count > 0) {
-        for (size_t i = 0; i < count; i++)
-        {
-            QListWidgetItem * item = ui->listWidget->takeItem(0);
-            delete item;
-        }
-    }
-}
-
 void AdgustMag::dataDelayProces(double delay, QVector<float> &data)
 {
     QVector<float> d(delay * (SAMPLERATE/1000), 0);
@@ -605,6 +595,7 @@ void AdgustMag::on_addBtn_clicked()
     connect(item, &EqItem::eqDataChanged, this, &AdgustMag::showPlot);
     item->setRow(ui->listWidget_EQ->count());
     QListWidgetItem *widgetItem = new QListWidgetItem(ui->listWidget_EQ);
+    widgetItem->setSizeHint(QSize(485, 31));
     ui->listWidget_EQ->setItemWidget(widgetItem, item);
     QString channelName = ui->speakerBox->currentText();
     for (auto &channel : project) {
@@ -617,22 +608,23 @@ void AdgustMag::on_addBtn_clicked()
 
 void AdgustMag::on_removeBtn_clicked()
 {
-    QList<QListWidgetItem*> items = ui->listWidget_EQ->selectedItems();
-    if (items.size() == 0)
+    QListWidgetItem *item = ui->listWidget_EQ->currentItem();
+    if (item == nullptr)
         return;
     QList<Channel> &project = App::instance().getProject();
-    for (auto item : items) {
-        int index = ui->listWidget_EQ->row(item);
-        QString channelName = ui->speakerBox->currentText();
-        for (auto &channel : project) {
-            if (channel.channelName == channelName)
-                channel.m_eq.remove(index);
-        }
-        QListWidgetItem * it = ui->listWidget_EQ->takeItem(index);
-        delete it;
+    int index = ui->listWidget_EQ->row(item);
+    QString channelName = ui->speakerBox->currentText();
+    for (auto &channel : project) {
+        if (channel.channelName == channelName)
+            channel.m_eq.remove(index);
     }
+    QWidget *widget = ui->listWidget->itemWidget(item);
+    ui->listWidget->removeItemWidget(item);
+    delete widget;
+    delete item;
     //重新排序
     on_speakerBox_currentIndexChanged(ui->speakerBox->currentText());
+    showPlot();
 }
 
 void AdgustMag::on_micLocation_currentIndexChanged(int index)

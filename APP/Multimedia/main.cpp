@@ -92,8 +92,8 @@ int main(int argc, char *argv[])
 
 //        QString decodedString = QString(encryption.removePadding(decodeText));
 
-//        qDebug() << decodedString;
 //    }
+//    qDebug() << decodedString << result;
     if (decodedString != result) {
         QMessageBox::question(nullptr, "error", "no access");
         return -1;

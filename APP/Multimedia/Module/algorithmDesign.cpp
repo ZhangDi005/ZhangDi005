@@ -9,7 +9,7 @@ const QVector<QString> CHANNEL_NAME = {"LFTW", "LFM", "LFW", "RFTW", "RFM",\
 const QMap<QString, int> CHANNEL_INDEX = {{"LFTW", 0}, {"LFM", 1}, {"LFW", 2}, {"RFTW", 3}, {"RFM", 4},\
                                          {"RFW", 5}, {"LSTW", 6}, {"LSM", 7}, {"LSW", 8}, {"RSTW", 9},\
                                          {"RSM", 10}, {"RSW", 11}, {"HLF", 12}, {"HRF", 13}, {"HLL", 14},\
-                                         {"HLR", 15}, {"LR", 16}, {"RR", 17}, {"HLS", 18}, {"HRS", 10},\
+                                         {"HLR", 15}, {"LR", 16}, {"RR", 17}, {"HLS", 18}, {"HRS", 19},\
                                          {"CTR", 20}, {"CTR_TW", 21}, {"SUB", 22}};
 int SAMPLERATE = 48000;
 double PAI = 3.1415926;

@@ -84,7 +84,6 @@ private slots:
 private:
     EQ::Eq_ata *getEqata(EqData eqData);
     F_M_P channelToFmp(Channel channel);
-    void listWidget_EqClear();
     void dataDelayProces(double delay, QVector<float> &data);
     void dataGainProces(double gain, QVector<float> &data);
     void invert(QVector<float> &data);
