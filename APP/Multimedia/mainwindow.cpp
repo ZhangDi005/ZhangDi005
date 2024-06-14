@@ -40,7 +40,7 @@ void MainWindow::on_actionphaseChart_triggered(bool checked)
 void MainWindow::on_actionAdgust_triggered()
 {
     ui->stackedWidget->setCurrentIndex(STACKWIG::ADGUST);
-    ui->adgustMag->upData();
+    ui->adgustMag->addChannel();
     ui->adgustMag->upDataRemark();
 }
 

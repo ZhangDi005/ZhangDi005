@@ -19,6 +19,7 @@ public:
     ~ChannelItem();
 
     void init(Channel channel);
+    QString getName();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);

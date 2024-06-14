@@ -35,6 +35,7 @@ class AdgustMag : public QWidget
 public:
     explicit AdgustMag(QWidget *parent = nullptr);
     ~AdgustMag();
+    void addChannel();
     void upData();
     void upDataRemark();
     void showPlot();

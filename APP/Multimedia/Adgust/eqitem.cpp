@@ -69,7 +69,7 @@ void EqItem::on_type_currentIndexChanged(int index)
         orders << "2";
         ui->Order->addItems(orders);
         ui->spinBox_gain->setEnabled(false);
-        ui->spinBox_q->setEnabled(false);
+        ui->spinBox_q->setEnabled(true);
         break;
     }
     case FilterType::Lowpass_LR: {

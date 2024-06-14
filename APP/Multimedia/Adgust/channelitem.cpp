@@ -41,6 +41,11 @@ void ChannelItem::init(Channel channel)
     ui->invert->setChecked(channel.m_channelData.m_invert);
 }
 
+QString ChannelItem::getName()
+{
+    return ui->name->text();
+}
+
 bool ChannelItem::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj == this) {

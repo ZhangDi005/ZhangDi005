@@ -43,7 +43,7 @@ QVector<float> EQ::filter(QVector<float> IN_data_, Eq_ata* ata, int number)
     {
         out.push_back(OUT_data[num]);
     }
-
+    delete []OUT_data;
     return out;
 
 }
@@ -96,7 +96,7 @@ EQ::Eq_ata* EQ::Phase_Changer(int EQ_fc, double EQ_Gain, double EQ_Q)
 {
 	Eq_ata *data = new Eq_ata();
 	double w0 = 2 * PI * EQ_fc / fs;
-	double Q = 0.707;
+    double Q = EQ_Q;
 	double alpha = sin(w0) / (2 * Q);
 	double b0 = 1 - alpha;
 	double b1 = -2 * cos(w0);
@@ -592,8 +592,8 @@ long double* addComplex(complex<long double> *b1, complex<long double> *b2, comp
 {
     complex<long double> *hup = new complex<long double>[EQ_ORDER_LEN];
     complex<long double> *hdown = new complex<long double>[EQ_ORDER_LEN];
-    complex<long double> *freq_response = new complex<long double>[EQ_ORDER_LEN];
-    long double *response = new long double[EQ_ORDER_LEN];
+//    complex<long double> *freq_response = new complex<long double>[EQ_ORDER_LEN];
+//    long double *response = new long double[EQ_ORDER_LEN];
 
     for (int i = 0; i < EQ_ORDER_LEN; i++)
     {
@@ -605,8 +605,12 @@ long double* addComplex(complex<long double> *b1, complex<long double> *b2, comp
         hdown[i] = complex<double>(realvalue1, imagvalue1);
     }
 
-    freq_response = divisionComplex(hup, hdown);
-    response = getAmplitude(freq_response);
+    complex<long double> *freq_response = divisionComplex(hup, hdown);
+    long double *response = getAmplitude(freq_response);
+    delete []hup;
+    delete []hdown;
+    delete []freq_response;
+
     return response;
 }
 
@@ -614,8 +618,8 @@ long double* addComplex_2(complex<long double> *b1, complex<long double> *b2, lo
 {
     complex<long double> *hup =new complex<long double>[EQ_ORDER_LEN];
     complex<long double> *hdown=new complex<long double>[EQ_ORDER_LEN];
-    complex<long double> *freq_response = new complex<long double>[EQ_ORDER_LEN];
-    long double *response =new long double[EQ_ORDER_LEN];
+//    complex<long double> *freq_response = new complex<long double>[EQ_ORDER_LEN];
+//    long double *response =new long double[EQ_ORDER_LEN];
 
 
     for (int i = 0; i < EQ_ORDER_LEN; i++)
@@ -628,8 +632,11 @@ long double* addComplex_2(complex<long double> *b1, complex<long double> *b2, lo
         hdown[i] = complex<double>(realvalue1, imagvalue1);
     }
 
-    freq_response=divisionComplex(hup, hdown);
-    response = getAmplitude(freq_response);
+    complex<long double> *freq_response=divisionComplex(hup, hdown);
+    long double *response = getAmplitude(freq_response);
+    delete []hup;
+    delete []hdown;
+    delete []freq_response;
     return response;
 }
 long double * getFreqw(EQ::coeff coeff, long double w[EQ_ORDER_LEN])
@@ -643,7 +650,7 @@ long double * getFreqw(EQ::coeff coeff, long double w[EQ_ORDER_LEN])
     complex<long double> *a3 = new complex<long double>[EQ_ORDER_LEN];
     complex<long double> *a2 = new complex<long double>[EQ_ORDER_LEN];
     complex<long double> *a1 = new complex<long double>[EQ_ORDER_LEN];
-    long double *response = new long double[EQ_ORDER_LEN];
+//    long double *response = new long double[EQ_ORDER_LEN];
     for (int i = 0; i < EQ_ORDER_LEN; i++)
     {
         long double b1_real = coeff.getB1 * cos(w[i]);
@@ -677,8 +684,15 @@ long double * getFreqw(EQ::coeff coeff, long double w[EQ_ORDER_LEN])
     long double number_A = coeff.getA0;
     long double number_B = coeff.getB0;
 
-    response=addComplex(b1,b2,b3,b4, number_B,a1,a2,a3,a4,number_A);
-
+    long double *response=addComplex(b1,b2,b3,b4, number_B,a1,a2,a3,a4,number_A);
+    delete []b4;
+    delete []b3;
+    delete []b2;
+    delete []b1;
+    delete []a4;
+    delete []a3;
+    delete []a2;
+    delete []a1;
     return response;
 }
 
@@ -688,7 +702,7 @@ long double *getFreqwt(EQ::coefft coefft, long double w[EQ_ORDER_LEN])
     complex<long double> *b1 = new complex<long double>[EQ_ORDER_LEN];
     complex<long double> *a2 = new complex<long double>[EQ_ORDER_LEN];
     complex<long double> *a1 = new complex<long double>[EQ_ORDER_LEN];
-    long double *response = new long double[EQ_ORDER_LEN];
+//    long double *response = new long double[EQ_ORDER_LEN];
 
     for (int i = 0; i < EQ_ORDER_LEN; i++)
     {
@@ -713,8 +727,11 @@ long double *getFreqwt(EQ::coefft coefft, long double w[EQ_ORDER_LEN])
     long double number_A = coefft.getA0;
     long double number_B = coefft.getB0;
 
-    response=addComplex_2(b1, b2,number_B, a1, a2,number_A);
-
+    long double *response=addComplex_2(b1, b2,number_B, a1, a2,number_A);
+    delete []a2;
+    delete []a1;
+    delete []b2;
+    delete []b1;
     return response;
 }
 
@@ -723,14 +740,14 @@ EQ::Eq_rsp* EQ::EQ_resp(EQ::coeff coeff, int fs)
     Eq_rsp *data = new Eq_rsp();
     long double *w = new long double[EQ_ORDER_LEN];
     long double *f = new long double[EQ_ORDER_LEN];
-    long double *response = new long double[EQ_ORDER_LEN];
+//    long double *response = new long double[EQ_ORDER_LEN];
 
     for (int i = 0; i < EQ_ORDER_LEN; i++)
     {
         f[i] = i * 0.1;
         w[i] = i * 0.1 *2 *PI /fs;
     }
-    response=getFreqw(coeff,w);
+    long double *response=getFreqw(coeff,w);
 
     for (int i = 0; i < EQ_ORDER_LEN; i++)
     {
@@ -738,6 +755,9 @@ EQ::Eq_rsp* EQ::EQ_resp(EQ::coeff coeff, int fs)
         if (i%10 == 0)
             data->response.push_back(response[i] * -1.0);
     }
+    delete []f;
+    delete []w;
+    delete []response;
     return data;
 }
 
@@ -747,7 +767,7 @@ EQ::Eq_rsp* EQ::EQ_resp_2_order(EQ::coefft coefft, int fs)
 
     long double *w = new long double[EQ_ORDER_LEN];
     long double *f = new long double[EQ_ORDER_LEN];
-    long double *response = new long double[EQ_ORDER_LEN];
+//    long double *response = new long double[EQ_ORDER_LEN];
 
 
     for (int i = 0; i < EQ_ORDER_LEN; i++)
@@ -755,7 +775,7 @@ EQ::Eq_rsp* EQ::EQ_resp_2_order(EQ::coefft coefft, int fs)
         f[i] = i * 0.1;
         w[i] = i * 0.1 * 2 * PI / fs;
     }
-    response=getFreqwt(coefft, w);
+    long double *response=getFreqwt(coefft, w);
 
     for (int i = 0; i < EQ_ORDER_LEN; i++)
     {
@@ -763,5 +783,8 @@ EQ::Eq_rsp* EQ::EQ_resp_2_order(EQ::coefft coefft, int fs)
         if (i%10 == 0)
             data->response.push_back(response[i] * -1.0);
     }
+    delete []w;
+    delete []f;
+    delete []response;
     return data;
 }

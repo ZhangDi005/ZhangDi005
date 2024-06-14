@@ -37,7 +37,7 @@ AdgustMag::AdgustMag(QWidget *parent) :
     connect(m_action, &QAction::triggered, [=](){
         AddChannel addchannel;
         if (addchannel.exec() == QDialog::Accepted) {
-            upData();
+            addChannel();
             showPlot();
         }
     });
@@ -73,7 +73,7 @@ AdgustMag::~AdgustMag()
     delete ui;
 }
 
-void AdgustMag::upData()
+void AdgustMag::addChannel()
 {
     ui->listWidget->clear();
     ui->speakerBox->clear();
@@ -84,11 +84,26 @@ void AdgustMag::upData()
             ChannelItem * item = new ChannelItem(ui->listWidget);
             item->init(channel);
             connect(item, &ChannelItem::dataChanged, this, &AdgustMag::showPlot);
-            connect(item, &ChannelItem::channelChanged, this, &AdgustMag::upData);
+            connect(item, &ChannelItem::channelChanged, this, &AdgustMag::addChannel);
             QListWidgetItem * listItem = new QListWidgetItem(ui->listWidget);
             listItem->setSizeHint(QSize(312, 31));
             ui->listWidget->setItemWidget(listItem, item);
             continue;
+        }
+    }
+    showPlot();
+}
+
+void AdgustMag::upData()
+{
+    QList<Channel> project = App::instance().getProject();
+    for (auto channel : project) {
+        for (int i = 0; i < ui->listWidget->count(); i++) {
+            ChannelItem *item = static_cast<ChannelItem*>(ui->listWidget->itemWidget(ui->listWidget->item(i)));
+            if (item->getName() == channel.channelName) {
+                item->init(channel);
+                break;
+            }
         }
     }
     showPlot();
@@ -130,6 +145,7 @@ F_M_P AdgustMag::channelToFmp(Channel channel)
                         rsp = eq.EQ_resp(coe, SAMPLERATE);
                     }
                     add += rsp->response;
+                    delete ata;
                 }
             }
         }
@@ -156,8 +172,10 @@ F_M_P AdgustMag::channelToFmp(Channel channel)
             for (auto item : channel.m_eq) {
                 if ((item.m_selected == true) && (item.m_fc > 0)) {
                     EQ::Eq_ata *ata = getEqata(item);
-                    if (ata != nullptr)
+                    if (ata != nullptr) {
                         data = eq.filter(data, ata, item.m_order + 1);
+                        delete ata;
+                    }
                 }
             }
             fmp = fft(data, m_curvetype);
@@ -176,8 +194,10 @@ F_M_P AdgustMag::channelToFmp(Channel channel)
             for (auto item : channel.m_eq) {
                 if ((item.m_selected == true) && (item.m_fc > 0)) {
                     EQ::Eq_ata *ata = getEqata(item);
-                    if (ata != nullptr)
+                    if (ata != nullptr) {
                         data = eq.filter(data, ata, item.m_order + 1);
+                        delete ata;
+                    }
                 }
             }
             fmp = fft(data, m_curvetype);
@@ -200,8 +220,10 @@ F_M_P AdgustMag::channelToFmp(Channel channel)
             for (auto item : channel.m_eq) {
                 if ((item.m_selected == true) && (item.m_fc > 0)) {
                     EQ::Eq_ata *ata = getEqata(item);
-                    if (ata != nullptr)
+                    if (ata != nullptr) {
                         data = eq.filter(data, ata, item.m_order + 1);
+                        delete ata;
+                    }
                 }
             }
             fmp = fft(data, m_curvetype);
@@ -223,8 +245,10 @@ F_M_P AdgustMag::channelToFmp(Channel channel)
             for (auto item : channel.m_eq) {
                 if ((item.m_selected == true) && (item.m_fc > 0)) {
                     EQ::Eq_ata *ata = getEqata(item);
-                    if (ata != nullptr)
+                    if (ata != nullptr) {
                         data = eq.filter(data, ata, item.m_order + 1);
+                        delete ata;
+                    }
                 }
             }
             fmp = fft(data, m_curvetype);
@@ -243,8 +267,10 @@ F_M_P AdgustMag::channelToFmp(Channel channel)
             for (auto item : channel.m_eq) {
                 if ((item.m_selected == true) && (item.m_fc > 0)) {
                     EQ::Eq_ata *ata = getEqata(item);
-                    if (ata != nullptr)
+                    if (ata != nullptr) {
                         data = eq.filter(data, ata, item.m_order + 1);
+                        delete ata;
+                    }
                 }
             }
             fmp = fft(data, m_curvetype);
@@ -267,8 +293,10 @@ F_M_P AdgustMag::channelToFmp(Channel channel)
             for (auto item : channel.m_eq) {
                 if ((item.m_selected == true) && (item.m_fc > 0)) {
                     EQ::Eq_ata *ata = getEqata(item);
-                    if (ata != nullptr)
+                    if (ata != nullptr) {
                         data = eq.filter(data, ata, item.m_order + 1);
+                        delete ata;
+                    }
                 }
             }
             fmp = fft(data, m_curvetype);
@@ -339,8 +367,10 @@ void AdgustMag::phaseShowPort()
                     for (auto item : channel.m_eq) {
                         if ((item.m_selected == true) && (item.m_fc > 0)) {
                             EQ::Eq_ata *ata = getEqata(item);
-                            if (ata != nullptr)
+                            if (ata != nullptr) {
                                 data = eq.filter(data, ata, item.m_order + 1);
+                                delete ata;
+                            }
                         }
                     }
                     fmp = fft(data, m_curvetype);
@@ -357,8 +387,10 @@ void AdgustMag::phaseShowPort()
                     for (auto item : channel.m_eq) {
                         if ((item.m_selected == true) && (item.m_fc > 0)) {
                             EQ::Eq_ata *ata = getEqata(item);
-                            if (ata != nullptr)
+                            if (ata != nullptr) {
                                 data = eq.filter(data, ata, item.m_order + 1);
+                                delete ata;
+                            }
                         }
                     }
                     fmp = fft(data, m_curvetype);
@@ -382,8 +414,10 @@ void AdgustMag::phaseShowPort()
                     for (auto item : channel.m_eq) {
                         if ((item.m_selected == true) && (item.m_fc > 0)) {
                             EQ::Eq_ata *ata = getEqata(item);
-                            if (ata != nullptr)
+                            if (ata != nullptr) {
                                 data = eq.filter(data, ata, item.m_order + 1);
+                                delete ata;
+                            }
                         }
                     }
                     fmp = fft(data, m_curvetype);
@@ -400,8 +434,10 @@ void AdgustMag::phaseShowPort()
                     for (auto item : channel.m_eq) {
                         if ((item.m_selected == true) && (item.m_fc > 0)) {
                             EQ::Eq_ata *ata = getEqata(item);
-                            if (ata != nullptr)
+                            if (ata != nullptr) {
                                 data = eq.filter(data, ata, item.m_order + 1);
+                                delete ata;
+                            }
                         }
                     }
                     fmp = fft(data, m_curvetype);
@@ -430,8 +466,10 @@ QVector<float> AdgustMag::AddToOnleOne(Channel channel, int loca)
     for (auto item : channel.m_eq) {
         if ((item.m_selected == true) && (item.m_fc > 0)) {
             EQ::Eq_ata *ata = getEqata(item);
-            if (ata != nullptr)
+            if (ata != nullptr) {
                 data = EQ::filter(data, ata, item.m_order + 1);
+                delete ata;
+            }
         }
     }
     return data;
@@ -612,16 +650,14 @@ void AdgustMag::on_removeBtn_clicked()
     if (item == nullptr)
         return;
     QList<Channel> &project = App::instance().getProject();
-    int index = ui->listWidget_EQ->row(item);
+    int index = ui->listWidget_EQ->currentRow();
     QString channelName = ui->speakerBox->currentText();
     for (auto &channel : project) {
         if (channel.channelName == channelName)
             channel.m_eq.remove(index);
     }
-    QWidget *widget = ui->listWidget->itemWidget(item);
-    ui->listWidget->removeItemWidget(item);
-    delete widget;
-    delete item;
+    QListWidgetItem* it = ui->listWidget_EQ->takeItem(index);
+    delete it;
     //重新排序
     on_speakerBox_currentIndexChanged(ui->speakerBox->currentText());
     showPlot();
@@ -657,7 +693,7 @@ void AdgustMag::on_locationComBox_1_currentIndexChanged(int index)
 
 EQ::Eq_ata *AdgustMag::getEqata(EqData eqData)
 {
-    EQ::Eq_ata *ata = new EQ::Eq_ata();
+    EQ::Eq_ata *ata;
     EQ eq;
     switch(eqData.m_type) {
     case FilterType::Parametric:
@@ -799,7 +835,6 @@ void AdgustMag::on_checkBox_clicked(bool checked)
         }
     }
     upData();
-    showPlot();
 }
 
 void AdgustMag::on_modeSpeakerBox_currentIndexChanged(int index)
