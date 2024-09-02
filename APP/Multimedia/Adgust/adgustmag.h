@@ -18,6 +18,7 @@ class AdgustMag;
 
 enum SPACE {
     FRONT = 0,
+    MIDDLE,
     REAR,
     ROW_ALL
 };
@@ -90,6 +91,8 @@ private:
     void invert(QVector<float> &data);
     QVector<float> AddToOnleOne(Channel channel, int loca);
     QVector<F_M_P> AddToFFT(Add add_dr, Add add_ps, int count, QString loca);
+    void getFMP_only(const Channel & channel, F_M_P & fmp, int flag);
+    void getFMP_row(const Channel & channel, F_M_P & fmp, int flag_1, int flag_2);
     Ui::AdgustMag *ui;
     QButtonGroup *m_BtnGroup;
     SPACE m_space = SPACE::FRONT;

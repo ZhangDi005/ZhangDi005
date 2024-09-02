@@ -113,6 +113,7 @@ struct F_M_P {
     QVector<float> phase;
     bool isTargetCurve = false;
     void init();
+    bool isEmpty_m();
     void initTargetCurve();
     void operator=(F_M_P fmp);
 };

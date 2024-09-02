@@ -11,6 +11,14 @@
         <file>images/seat.png</file>
         <file>images/seat_checked.png</file>
         <file>images/vehicle.png</file>
+        <file>images/speaker_CTR.png</file>
+        <file>images/speaker_CTR_checked.png</file>
+        <file>images/speaker_CTR_TW.png</file>
+        <file>images/speaker_CTR_TW_checked.png</file>
+        <file>images/speaker_HLL.png</file>
+        <file>images/speaker_HLL_checked.png</file>
+        <file>images/speaker_SUB.png</file>
+        <file>images/speaker_SUB_checked.png</file>
     </qresource>
     <qresource prefix="/">
         <file>qss/givenStyle.qss</file>

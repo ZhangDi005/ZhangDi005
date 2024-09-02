@@ -100,6 +100,8 @@ void MainWindow::on_actionOpen_triggered()
         QDataStream in(&file);
         in>>App::instance();
         on_actionAdgust_triggered();
+        QString title = "Multimedia     " + QFileInfo(fileName).filePath();
+        this->setWindowTitle(title);
     } else
         QMessageBox::warning(this, "提示", "打开失败");
 }

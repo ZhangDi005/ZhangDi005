@@ -123,6 +123,56 @@ void AdgustMag::showPlot()
     on_spaceAllBox_currentIndexChanged(ui->spaceAllBox->currentIndex());//右
     phaseShowPort(); // 下
 }
+void AdgustMag::getFMP_only(const Channel & channel, F_M_P & fmp, int flag)
+{
+    // 延迟 delay
+    QVector<float> data = channel.seatMag_m.value(flag);
+    if (data.isEmpty()) return;
+    if (channel.m_channelData.m_invert)
+        invert(data);
+    dataDelayProces(channel.m_channelData.m_delay, data);
+    // gain
+    dataGainProces(channel.m_channelData.m_gain, data);
+    // eq
+    for (auto item : channel.m_eq) {
+        if ((item.m_selected == true) && (item.m_fc > 0)) {
+            EQ::Eq_ata *ata = getEqata(item);
+            if (ata != nullptr) {
+                data = EQ::filter(data, ata, item.m_order + 1);
+                delete ata;
+            }
+        }
+    }
+    fmp = fft(data, m_curvetype);
+    fmp.name = channel.channelName;
+}
+
+void AdgustMag::getFMP_row(const Channel & channel, F_M_P & fmp, int flag_1, int flag_2)
+{
+    Add add;
+    add += channel.seatMag_m.value(flag_1);
+    add += channel.seatMag_m.value(flag_2);
+    // 延迟 delay
+    QVector<float> data = avg(add, 2);
+    if (data.isEmpty()) return;
+    if (channel.m_channelData.m_invert)
+        invert(data);
+    dataDelayProces(channel.m_channelData.m_delay, data);
+    // gain
+    dataGainProces(channel.m_channelData.m_gain, data);
+    // eq
+    for (auto item : channel.m_eq) {
+        if ((item.m_selected == true) && (item.m_fc > 0)) {
+            EQ::Eq_ata *ata = getEqata(item);
+            if (ata != nullptr) {
+                data = EQ::filter(data, ata, item.m_order + 1);
+                delete ata;
+            }
+        }
+    }
+    fmp = fft(data, m_curvetype);
+    fmp.name = channel.channelName + "-ROW";
+}
 
 F_M_P AdgustMag::channelToFmp(Channel channel)
 {
@@ -161,146 +211,48 @@ F_M_P AdgustMag::channelToFmp(Channel channel)
     if (m_space == SPACE::FRONT) {
         switch (m_location) {
         case (LOCATION::DRIVER) : {
-            // 延迟 delay
-            QVector<float> data = channel.seatMag_m.value(0);
-            if (channel.m_channelData.m_invert)
-                invert(data);
-            dataDelayProces(channel.m_channelData.m_delay, data);
-            // gain
-            dataGainProces(channel.m_channelData.m_gain, data);
-            // eq
-            for (auto item : channel.m_eq) {
-                if ((item.m_selected == true) && (item.m_fc > 0)) {
-                    EQ::Eq_ata *ata = getEqata(item);
-                    if (ata != nullptr) {
-                        data = eq.filter(data, ata, item.m_order + 1);
-                        delete ata;
-                    }
-                }
-            }
-            fmp = fft(data, m_curvetype);
-            fmp.name = channel.channelName;
+            getFMP_only(channel, fmp, 0);
             break;
         }
         case (LOCATION::PASS) : {
-            // 延迟 delay
-            QVector<float> data = channel.seatMag_m.value(1);
-            if (channel.m_channelData.m_invert)
-                invert(data);
-            dataDelayProces(channel.m_channelData.m_delay, data);
-            // gain
-            dataGainProces(channel.m_channelData.m_gain, data);
-            // eq
-            for (auto item : channel.m_eq) {
-                if ((item.m_selected == true) && (item.m_fc > 0)) {
-                    EQ::Eq_ata *ata = getEqata(item);
-                    if (ata != nullptr) {
-                        data = eq.filter(data, ata, item.m_order + 1);
-                        delete ata;
-                    }
-                }
-            }
-            fmp = fft(data, m_curvetype);
-            fmp.name = channel.channelName;
+            getFMP_only(channel, fmp, 1);
             break;
         }
         case (LOCATION::ROW) :
         {
-            Add add;
-            add += channel.seatMag_m.value(0);
-            add += channel.seatMag_m.value(1);
-            // 延迟 delay
-            QVector<float> data = avg(add, 2);
-            if (channel.m_channelData.m_invert)
-                invert(data);
-            dataDelayProces(channel.m_channelData.m_delay, data);
-            // gain
-            dataGainProces(channel.m_channelData.m_gain, data);
-            // eq
-            for (auto item : channel.m_eq) {
-                if ((item.m_selected == true) && (item.m_fc > 0)) {
-                    EQ::Eq_ata *ata = getEqata(item);
-                    if (ata != nullptr) {
-                        data = eq.filter(data, ata, item.m_order + 1);
-                        delete ata;
-                    }
-                }
-            }
-            fmp = fft(data, m_curvetype);
-            fmp.name = channel.channelName + "ROW";
+            getFMP_row(channel, fmp, 0, 1);
+            break;
+        }
+        }
+    } else if (m_space == SPACE::MIDDLE) {
+        switch (m_location) {
+        case (LOCATION::DRIVER) : {
+            getFMP_only(channel, fmp, 2);
+            break;
+        }
+        case (LOCATION::PASS) : {
+            getFMP_only(channel, fmp, 3);
+            break;
+        }
+        case (LOCATION::ROW) :
+        {
+            getFMP_row(channel, fmp, 2, 3);
             break;
         }
         }
     } else if (m_space == SPACE::REAR) {
         switch (m_location) {
         case (LOCATION::DRIVER) : {
-            // 延迟 delay
-            QVector<float> data = channel.seatMag_m.value(2);
-            if (channel.m_channelData.m_invert)
-                invert(data);
-            dataDelayProces(channel.m_channelData.m_delay, data);
-            // gain
-            dataGainProces(channel.m_channelData.m_gain, data);
-            // eq
-            for (auto item : channel.m_eq) {
-                if ((item.m_selected == true) && (item.m_fc > 0)) {
-                    EQ::Eq_ata *ata = getEqata(item);
-                    if (ata != nullptr) {
-                        data = eq.filter(data, ata, item.m_order + 1);
-                        delete ata;
-                    }
-                }
-            }
-            fmp = fft(data, m_curvetype);
-            fmp.name = channel.channelName;
+            getFMP_only(channel, fmp, 4);
             break;
         }
         case (LOCATION::PASS) : {
-            // 延迟 delay
-            QVector<float> data = channel.seatMag_m.value(3);
-            if (channel.m_channelData.m_invert)
-                invert(data);
-            dataDelayProces(channel.m_channelData.m_delay, data);
-            // gain
-            dataGainProces(channel.m_channelData.m_gain, data);
-            // eq
-            for (auto item : channel.m_eq) {
-                if ((item.m_selected == true) && (item.m_fc > 0)) {
-                    EQ::Eq_ata *ata = getEqata(item);
-                    if (ata != nullptr) {
-                        data = eq.filter(data, ata, item.m_order + 1);
-                        delete ata;
-                    }
-                }
-            }
-            fmp = fft(data, m_curvetype);
-            fmp.name = channel.channelName;
+            getFMP_only(channel, fmp, 5);
             break;
         }
         case (LOCATION::ROW) :
         {
-            Add add;
-            add += channel.seatMag_m.value(2);
-            add += channel.seatMag_m.value(3);
-            // 延迟 delay
-            QVector<float> data = avg(add, 2);
-            if (channel.m_channelData.m_invert)
-                invert(data);
-            dataDelayProces(channel.m_channelData.m_delay, data);
-            // gain
-            dataGainProces(channel.m_channelData.m_gain, data);
-            // eq
-            for (auto item : channel.m_eq) {
-                if ((item.m_selected == true) && (item.m_fc > 0)) {
-                    EQ::Eq_ata *ata = getEqata(item);
-                    if (ata != nullptr) {
-                        data = eq.filter(data, ata, item.m_order + 1);
-                        delete ata;
-                    }
-                }
-            }
-            fmp = fft(data, m_curvetype);
-            fmp.name = channel.channelName + "row";
+            getFMP_row(channel, fmp, 4, 5);
             break;
         }
         }
@@ -320,6 +272,7 @@ void AdgustMag::aloneShowPort()
     }
     // 平滑算法 1
     for (auto &fmp : fmps_specific) {
+        if (fmp.isEmpty_m()) continue;
         if (!fmp.isTargetCurve) {
             if (m_curvetype == CURVEMODE::dbFs)
                 toNegation_Y(fmp);
@@ -459,6 +412,7 @@ void AdgustMag::phaseShowPort()
 QVector<float> AdgustMag::AddToOnleOne(Channel channel, int loca)
 {
     QVector<float> data = channel.seatMag_m.value(loca);
+    if (data.isEmpty()) return QVector<float>();
     if (channel.m_channelData.m_invert)
         invert(data);
     dataDelayProces(channel.m_channelData.m_delay, data);
@@ -477,6 +431,7 @@ QVector<float> AdgustMag::AddToOnleOne(Channel channel, int loca)
 
 QVector<F_M_P> AdgustMag::AddToFFT(Add add_dr, Add add_ps, int count, QString loca)
 {
+    if (add_dr.getData().isEmpty() || add_ps.getData().isEmpty()) return QVector<F_M_P>();
     QVector<F_M_P> fmps;
     F_M_P fmp;
     fmp.init();
@@ -503,8 +458,8 @@ void AdgustMag::on_spaceAllBox_currentIndexChanged(int index)
     EQ eq;
     QVector<F_M_P> target;
     QVector<F_M_P> fmps_overall;
-    Add add_dr_f, add_dr_r;
-    Add add_ps_f, add_ps_r;
+    Add add_dr_f, add_dr_m, add_dr_r;
+    Add add_ps_f, add_ps_m, add_ps_r;
     QList<Channel> project = App::instance().getProject();
     int count = 0;
     for (auto channel : project) {
@@ -518,28 +473,37 @@ void AdgustMag::on_spaceAllBox_currentIndexChanged(int index)
         if (SPACE(index) == SPACE::FRONT) {
             add_dr_f += AddToOnleOne(channel, 0);
             add_ps_f += AddToOnleOne(channel, 1);
+        } else if (SPACE(index) == SPACE::MIDDLE) {
+            add_dr_m += AddToOnleOne(channel, 2);
+            add_ps_m += AddToOnleOne(channel, 3);
         } else if (SPACE(index) == SPACE::REAR) {
-            add_dr_r += AddToOnleOne(channel, 2);
-            add_ps_r += AddToOnleOne(channel, 3);
+            add_dr_r += AddToOnleOne(channel, 4);
+            add_ps_r += AddToOnleOne(channel, 5);
         } else if (SPACE(index) == SPACE::ROW_ALL) {
             add_dr_f += AddToOnleOne(channel, 0);
             add_ps_f += AddToOnleOne(channel, 1);
-            add_dr_r += AddToOnleOne(channel, 2);
-            add_ps_r += AddToOnleOne(channel, 3);
+            add_dr_m += AddToOnleOne(channel, 2);
+            add_ps_m += AddToOnleOne(channel, 3);
+            add_dr_r += AddToOnleOne(channel, 4);
+            add_ps_r += AddToOnleOne(channel, 5);
         }
     }
     if (count > 0) {
         if (SPACE(index) == SPACE::FRONT) {
             fmps_overall += AddToFFT(add_dr_f, add_ps_f, count, "Font");
+        } else if (SPACE(index) == SPACE::MIDDLE) {
+            fmps_overall += AddToFFT(add_dr_m, add_ps_m, count, "Middle");
         } else if (SPACE(index) == SPACE::REAR) {
             fmps_overall += AddToFFT(add_dr_r, add_ps_r, count, "Rear");
         } else if (SPACE(index) == SPACE::ROW_ALL) {
             fmps_overall += AddToFFT(add_dr_f, add_ps_f, count, "Font");
+            fmps_overall += AddToFFT(add_dr_m, add_ps_m, count, "Middle");
             fmps_overall += AddToFFT(add_dr_r, add_ps_r, count, "Rear");
         }
     }
     // 平滑算法
     for (auto &fmp : fmps_overall) {
+        if (fmp.isEmpty_m()) continue;
         if (m_curvetype == CURVEMODE::dbFs)
             toNegation_Y(fmp);
         //            toSmooth(fmp);
@@ -582,21 +546,13 @@ bool AdgustMag::eventFilter(QObject *watched, QEvent *event)
 
 void AdgustMag::on_spaceComBox_currentIndexChanged(int index)
 {
-    if (index == SPACE::FRONT)
-        m_space = SPACE::FRONT;
-    if (index == SPACE::REAR)
-        m_space = SPACE::REAR;
+    m_space = SPACE(index);
     aloneShowPort();
 }
 
 void AdgustMag::on_locationComBox_currentIndexChanged(int index)
 {
-    if (index == LOCATION::DRIVER)
-        m_location = LOCATION::DRIVER;
-    if (index == LOCATION::PASS)
-        m_location = LOCATION::PASS;
-    if (index == LOCATION::ROW)
-        m_location = LOCATION::ROW;
+    m_location = LOCATION(index);
     aloneShowPort();
 }
 

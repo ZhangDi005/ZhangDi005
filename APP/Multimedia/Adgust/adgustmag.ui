@@ -241,6 +241,11 @@
             </item>
             <item>
              <property name="text">
+              <string>Middle</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
               <string>Rear</string>
              </property>
             </item>
@@ -317,11 +322,16 @@
           <item>
            <widget class="QComboBox" name="spaceAllBox">
             <property name="currentIndex">
-             <number>2</number>
+             <number>0</number>
             </property>
             <item>
              <property name="text">
               <string>Front</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Middle</string>
              </property>
             </item>
             <item>

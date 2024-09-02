@@ -54,8 +54,10 @@ void CalculateMag::init()
     location->setExclusive(true);
     location->addButton(ui->location_LF, 0);
     location->addButton(ui->location_RF, 1);
-    location->addButton(ui->location_LS, 2);
-    location->addButton(ui->location_RS, 3);
+    location->addButton(ui->location_MID_LS, 2);
+    location->addButton(ui->location_MID_RS, 3);
+    location->addButton(ui->location_LS, 4);
+    location->addButton(ui->location_RS, 5);
 
     connect(speaker, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonPressed), this, [=](int id){
         speakerId = id;
@@ -148,4 +150,10 @@ void CalculateMag::on_selectBox_currentIndexChanged(int index)
 {
     ui->freq_chart->setSelectPlot(index);
     ui->phase_chart->setSelectPlot(index);
+}
+
+void CalculateMag::on_tiggerBtn_clicked()
+{
+    ui->location_MID_LS->setVisible(!ui->location_MID_LS->isVisible());
+    ui->location_MID_RS->setVisible(!ui->location_MID_RS->isVisible());
 }

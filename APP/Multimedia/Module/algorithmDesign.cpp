@@ -46,6 +46,11 @@ void F_M_P::init() {
     phase.clear();
 }
 
+bool F_M_P::isEmpty_m()
+{
+    return this->freq.isEmpty() || this->magnitude.isEmpty() || this->phase.isEmpty();
+}
+
 void F_M_P::initTargetCurve()
 {
     for (size_t i = 0; i < 20000; i++) {
@@ -164,17 +169,19 @@ void Channel::aloneToMix()
     seatMag_m[1] = seatMag[1].AVG();
     seatMag_m[2] = seatMag[2].AVG();
     seatMag_m[3] = seatMag[3].AVG();
+    seatMag_m[4] = seatMag[4].AVG();
+    seatMag_m[5] = seatMag[5].AVG();
 }
 
 bool const Channel::seatMagIsEmpty()
 {
     return seatMag[0].audioData[0].isEmpty() || seatMag[1].audioData[0].isEmpty() \
-            || seatMag[2].audioData[0].isEmpty() || seatMag[3].audioData[0].isEmpty();
+            || seatMag[4].audioData[0].isEmpty() || seatMag[5].audioData[0].isEmpty();
 }
 
 bool const Channel::seatMag_mIsEmpty()
 {
-    return seatMag_m.size() == 4;
+    return seatMag_m.size() == 4 || seatMag_m.size() == 6;
 }
 
 QDataStream & operator<<(QDataStream &stream, const Channel &info)

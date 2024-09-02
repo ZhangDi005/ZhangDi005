@@ -26,6 +26,8 @@ private slots:
 
     void on_selectBox_currentIndexChanged(int index);
 
+    void on_tiggerBtn_clicked();
+
 private:
     Ui::CalculateMag *ui;
     int speakerId = 0;
