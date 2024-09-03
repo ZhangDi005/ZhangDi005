@@ -267,7 +267,9 @@ void AdgustMag::aloneShowPort()
     QVector<F_M_P> fmps_specific;
     for (auto channel : project) {
         if (channel.m_channelData.m_selected) {
-            fmps_specific.append(channelToFmp(channel));
+            F_M_P fmp = channelToFmp(channel);
+            if (!fmp.isEmpty_m())
+                fmps_specific.append(fmp);
         }
     }
     // 平滑算法 1
@@ -296,9 +298,30 @@ void AdgustMag::aloneShowPort()
     ui->specificChart->setData(fmps_specific);
 }
 
+void AdgustMag::getFMP_Phase(const Channel & channel, F_M_P & fmp, int flag)
+{
+    AudioData audiodata = channel.seatMag.value(flag).audioData[ui->micLocation->currentText().toInt()-1];
+    if (audiodata.isEmpty()) return;
+    QVector<float> data = audiodata.getData();
+    if (channel.m_channelData.m_invert)
+        invert(data);
+    m_mid(data, QPair<float,float>(ui->startBox->value(), ui->stopBox->value()));
+    dataDelayProces(channel.m_channelData.m_delay, data);
+    for (auto item : channel.m_eq) {
+        if ((item.m_selected == true) && (item.m_fc > 0)) {
+            EQ::Eq_ata *ata = getEqata(item);
+            if (ata != nullptr) {
+                data = EQ::filter(data, ata, item.m_order + 1);
+                delete ata;
+            }
+        }
+    }
+    fmp = fft(data, m_curvetype);
+    fmp.name = channel.channelName;
+}
+
 void AdgustMag::phaseShowPort()
 {
-    EQ eq;
     ui->phaseChart->tracerClear();
     QList<Channel> project = App::instance().getProject();
     F_M_P fmp;
@@ -311,100 +334,46 @@ void AdgustMag::phaseShowPort()
             if (ui->spaceComBox_1->currentIndex() == SPACE::FRONT) {
                 switch (ui->locationComBox_1->currentIndex()) {
                 case (LOCATION::DRIVER) : {
-                    AudioData audiodata = channel.seatMag.value(0).audioData[ui->micLocation->currentText().toInt()-1];
-                    QVector<float> data = audiodata.getData();
-                    if (channel.m_channelData.m_invert)
-                        invert(data);
-                    m_mid(data, QPair<float,float>(ui->startBox->value(), ui->stopBox->value()));
-                    dataDelayProces(channel.m_channelData.m_delay, data);
-                    for (auto item : channel.m_eq) {
-                        if ((item.m_selected == true) && (item.m_fc > 0)) {
-                            EQ::Eq_ata *ata = getEqata(item);
-                            if (ata != nullptr) {
-                                data = eq.filter(data, ata, item.m_order + 1);
-                                delete ata;
-                            }
-                        }
-                    }
-                    fmp = fft(data, m_curvetype);
-                    fmp.name = channel.channelName;
+                    getFMP_Phase(channel, fmp, 0);
                     break;
                 }
                 case (LOCATION::PASS) : {
-                    AudioData audiodata = channel.seatMag.value(1).audioData[ui->micLocation->currentText().toInt()-1];
-                    QVector<float> data = audiodata.getData();
-                    if (channel.m_channelData.m_invert)
-                        invert(data);
-                    m_mid(data, QPair<float,float>(ui->startBox->value(), ui->stopBox->value()));
-                    dataDelayProces(channel.m_channelData.m_delay, data);
-                    for (auto item : channel.m_eq) {
-                        if ((item.m_selected == true) && (item.m_fc > 0)) {
-                            EQ::Eq_ata *ata = getEqata(item);
-                            if (ata != nullptr) {
-                                data = eq.filter(data, ata, item.m_order + 1);
-                                delete ata;
-                            }
-                        }
-                    }
-                    fmp = fft(data, m_curvetype);
-                    fmp.name = channel.channelName;
-                }
-                case (LOCATION::ROW) :
-                {
-
+                    getFMP_Phase(channel, fmp, 1);
                     break;
                 }
+                case (LOCATION::ROW) :
+                    break;
+                }
+            } else if (ui->spaceComBox_1->currentIndex() == SPACE::MIDDLE) {
+                switch (ui->locationComBox_1->currentIndex()) {
+                case (LOCATION::DRIVER) : {
+                    getFMP_Phase(channel, fmp, 2);
+                    break;
+                }
+                case (LOCATION::PASS) : {
+                    getFMP_Phase(channel, fmp, 3);
+                    break;
+                }
+                case (LOCATION::ROW) :
+                    break;
                 }
             } else if (ui->spaceComBox_1->currentIndex() == SPACE::REAR) {
                 switch (ui->locationComBox_1->currentIndex()) {
                 case (LOCATION::DRIVER) : {
-                    AudioData audiodata = channel.seatMag.value(2).audioData[ui->micLocation->currentText().toInt()-1];
-                    QVector<float> data = audiodata.getData();
-                    if (channel.m_channelData.m_invert)
-                        invert(data);
-                    m_mid(data, QPair<float,float>(ui->startBox->value(), ui->stopBox->value()));
-                    dataDelayProces(channel.m_channelData.m_delay, data);
-                    for (auto item : channel.m_eq) {
-                        if ((item.m_selected == true) && (item.m_fc > 0)) {
-                            EQ::Eq_ata *ata = getEqata(item);
-                            if (ata != nullptr) {
-                                data = eq.filter(data, ata, item.m_order + 1);
-                                delete ata;
-                            }
-                        }
-                    }
-                    fmp = fft(data, m_curvetype);
-                    fmp.name = channel.channelName;
+                    getFMP_Phase(channel, fmp, 4);
                     break;
                 }
                 case (LOCATION::PASS) : {
-                    AudioData audiodata = channel.seatMag.value(3).audioData[ui->micLocation->currentText().toInt()-1];
-                    QVector<float> data = audiodata.getData();
-                    if (channel.m_channelData.m_invert)
-                        invert(data);
-                    m_mid(data, QPair<float,float>(ui->startBox->value(), ui->stopBox->value()));
-                    dataDelayProces(channel.m_channelData.m_delay, data);
-                    for (auto item : channel.m_eq) {
-                        if ((item.m_selected == true) && (item.m_fc > 0)) {
-                            EQ::Eq_ata *ata = getEqata(item);
-                            if (ata != nullptr) {
-                                data = eq.filter(data, ata, item.m_order + 1);
-                                delete ata;
-                            }
-                        }
-                    }
-                    fmp = fft(data, m_curvetype);
-                    fmp.name = channel.channelName;
+                    getFMP_Phase(channel, fmp, 5);
                     break;
                 }
                 case (LOCATION::ROW) :
-                {
                     break;
-                }
                 }
             }
         }
-        fmps_specific.append(fmp);
+        if (!fmp.isEmpty_m())
+            fmps_specific.append(fmp);
     }
     ui->phaseChart->setData(fmps_specific);
 }
@@ -466,7 +435,9 @@ void AdgustMag::on_spaceAllBox_currentIndexChanged(int index)
         if(!channel.m_channelData.m_selected)
             continue;
         if(channel.isTargetCurve) {
-            target.append(channelToFmp(channel));
+            F_M_P fmp = channelToFmp(channel);
+            if (!fmp.isEmpty_m())
+                target.append(fmp);
             continue;
         }
         count++;

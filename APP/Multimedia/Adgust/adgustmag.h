@@ -93,6 +93,7 @@ private:
     QVector<F_M_P> AddToFFT(Add add_dr, Add add_ps, int count, QString loca);
     void getFMP_only(const Channel & channel, F_M_P & fmp, int flag);
     void getFMP_row(const Channel & channel, F_M_P & fmp, int flag_1, int flag_2);
+    void getFMP_Phase(const Channel & channel, F_M_P & fmp, int flag);
     Ui::AdgustMag *ui;
     QButtonGroup *m_BtnGroup;
     SPACE m_space = SPACE::FRONT;

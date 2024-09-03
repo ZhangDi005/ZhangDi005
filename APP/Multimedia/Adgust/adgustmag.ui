@@ -788,6 +788,11 @@
             </item>
             <item>
              <property name="text">
+              <string>Middle</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
               <string>Rear</string>
              </property>
             </item>
