@@ -48,7 +48,7 @@ void F_M_P::init() {
 
 bool F_M_P::isEmpty_m()
 {
-    return this->freq.isEmpty() || this->magnitude.isEmpty() || this->phase.isEmpty();
+    return this->freq.isEmpty();
 }
 
 void F_M_P::initTargetCurve()
