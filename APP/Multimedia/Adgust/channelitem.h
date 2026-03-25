@@ -6,6 +6,7 @@
 #include <QEvent>
 #include <QMenu>
 #include "Module/app.h"
+#include "Module/algorithmDesign.h"
 namespace Ui {
 class ChannelItem;
 }
@@ -25,8 +26,8 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
 signals:
-    void dataChanged();
-    void channelChanged();
+    void dataChanged(QString channelName);
+    void removeChannel(QString channelName);
 
 private slots:
 
@@ -40,6 +41,7 @@ private slots:
 
 private:
     Ui::ChannelItem *ui;
+    Channel channel;
     QAction *m_action;
     QMenu *m_menu;
 };

@@ -40,7 +40,7 @@ void MainWindow::on_actionphaseChart_triggered(bool checked)
 void MainWindow::on_actionAdgust_triggered()
 {
     ui->stackedWidget->setCurrentIndex(STACKWIG::ADGUST);
-    ui->adgustMag->addChannel();
+    ui->adgustMag->initChannel();
     ui->adgustMag->upDataRemark();
 }
 
@@ -72,7 +72,7 @@ void MainWindow::on_actionbnb_triggered()
 
 void MainWindow::on_actionSave_triggered()
 {
-    QSettings setting("./setting/imPort.ini", QSettings::IniFormat);
+    QSettings setting("./setting/setting.ini", QSettings::IniFormat);
     QString lastPath = setting.value("LastSavePath").toString();
     QString fileName = QFileDialog::getSaveFileName(this, "save file", lastPath, "(*.bin)");
     if (fileName == "")
@@ -89,7 +89,7 @@ void MainWindow::on_actionSave_triggered()
 
 void MainWindow::on_actionOpen_triggered()
 {
-    QSettings setting("./setting/imPort.ini", QSettings::IniFormat);
+    QSettings setting("./setting/setting.ini", QSettings::IniFormat);
     QString lastPath = setting.value("LastOpenPath").toString();
     QString fileName = QFileDialog::getOpenFileName(this, "open file", lastPath, "(*.bin)");
     if (fileName == "")

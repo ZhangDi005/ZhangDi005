@@ -20,7 +20,7 @@ public:
     void setRow(int row);
 
 signals:
-    void eqDataChanged();
+    void eqDataChanged(QString channelName);
 
 private slots:
     void on_type_currentIndexChanged(int index);

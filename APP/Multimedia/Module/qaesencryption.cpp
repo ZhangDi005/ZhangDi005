@@ -197,7 +197,7 @@ QByteArray QAESEncryption::expandKey(const QByteArray &key)
 
   // All other round keys are found from the previous round keys.
   //i == Nk
-  for(i = m_nk; i < m_nb * (m_nr + 1); i++)
+  for(i = m_nk; i <= m_nb * (m_nr + 1); i++)
   {
     tempa[0] = (quint8) roundKey.at((i-1) * 4 + 0);
     tempa[1] = (quint8) roundKey.at((i-1) * 4 + 1);

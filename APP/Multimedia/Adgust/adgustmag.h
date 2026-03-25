@@ -36,11 +36,12 @@ class AdgustMag : public QWidget
 public:
     explicit AdgustMag(QWidget *parent = nullptr);
     ~AdgustMag();
-    void addChannel();
+    void addChannel(Channel channel);
+    void initChannel();
     void upData();
     void upDataRemark();
     void showPlot();
-    void aloneShowPort();
+    void aloneShowPort(); //左
 //    void rowShowPort(); 右
     void phaseShowPort();
     void setSmooth(SMOOTH smooth);
@@ -82,6 +83,10 @@ private slots:
     void on_checkBox_clicked(bool checked);
 
     void on_modeSpeakerBox_currentIndexChanged(int index);
+
+    void removeChannel(QString channelName);
+
+    void on_dataChanged(QString channelName);
 
 private:
     EQ::Eq_ata *getEqata(EqData eqData);

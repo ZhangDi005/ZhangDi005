@@ -15,6 +15,7 @@ class AddChannel : public QDialog
 public:
     explicit AddChannel(QDialog *parent = nullptr);
     ~AddChannel();
+    Channel getChannel();
 
 private slots:
     void on_pushButton_clicked();
@@ -22,6 +23,7 @@ private slots:
     void on_pushButton_2_clicked();
 
 private:
+    Channel channel;
     Ui::AddChannel *ui;
 };
 

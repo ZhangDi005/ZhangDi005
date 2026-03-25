@@ -10,15 +10,8 @@ ChannelItem::ChannelItem(QWidget *parent) :
     m_action = new QAction("remove", this);
     m_menu = new QMenu(this);
     m_menu->addAction(m_action);
-    connect(m_action, &QAction::triggered, [=](){
-        QList<Channel> &project = App::instance().getProject();
-        for (int i = 0; i < project.size(); i++) {
-            if (project.at(i).channelName == ui->name->text()) {
-                project.removeAt(i);
-                break;
-            }
-        }
-        emit channelChanged();
+    connect(m_action, &QAction::triggered, [this](){
+        emit removeChannel(channel.channelName);
     });
 }
 
@@ -29,6 +22,7 @@ ChannelItem::~ChannelItem()
 
 void ChannelItem::init(Channel channel)
 {
+    this->channel = channel;
     ui->selected->setChecked(channel.m_channelData.m_selected);
     ui->name->setText(channel.channelName);
     ui->gainSpinBox->setValue(channel.m_channelData.m_gain);
@@ -78,7 +72,7 @@ void ChannelItem::on_delaySpinBox_editingFinished()
         }
     }
     if (ui->selected->isChecked())
-        emit dataChanged();
+        emit dataChanged(channel.channelName);
 }
 
 void ChannelItem::on_gainSpinBox_editingFinished()
@@ -91,7 +85,7 @@ void ChannelItem::on_gainSpinBox_editingFinished()
         }
     }
     if (ui->selected->isChecked())
-        emit dataChanged();
+        emit dataChanged(channel.channelName);
 }
 
 void ChannelItem::on_invert_clicked(bool checked)
@@ -104,7 +98,7 @@ void ChannelItem::on_invert_clicked(bool checked)
         }
     }
     if (ui->selected->isChecked())
-        emit dataChanged();
+        emit dataChanged(channel.channelName);
 }
 
 void ChannelItem::on_selected_clicked(bool checked)
@@ -116,5 +110,5 @@ void ChannelItem::on_selected_clicked(bool checked)
             break;
         }
     }
-    emit dataChanged();
+    emit dataChanged(channel.channelName);
 }

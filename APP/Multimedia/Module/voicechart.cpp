@@ -6,6 +6,9 @@ VoiceChart::VoiceChart(QWidget *parent) :
     ui(new Ui::VoiceChart)
 {
     ui->setupUi(this);
+    rangeDebounceTimer = new QTimer(this);
+    rangeDebounceTimer->setSingleShot(true); // 单次触发（执行一次后自动停止）
+    rangeDebounceTimer->setInterval(500);    // 防抖时间（200ms，可根据需求调整）
     init();
 }
 
@@ -57,7 +60,7 @@ void VoiceChart::setData(AudioDataManage audioDatas)
         else
             ;
     }
-    rangeSelfAdaption();
+    //rangeSelfAdaption();
 }
 
 void VoiceChart::setData(QVector<F_M_P> fmps)
@@ -199,6 +202,79 @@ void VoiceChart::updata()
     }
 }
 
+QPair<QCPRange, QCPRange> VoiceChart::getRange()
+{
+    QCPRange xAxis = ui->chart->xAxis->range();
+    QCPRange yAxis = ui->chart->yAxis->range();
+    return QPair<QCPRange,QCPRange>(xAxis, yAxis);
+}
+
+void VoiceChart::setRange(QPair<QCPRange, QCPRange> range)
+{
+    ui->chart->xAxis->setRange(range.first);
+    ui->chart->yAxis->setRange(range.second);
+}
+
+void VoiceChart::removeGraphByName(QString channelName)
+{
+    for (int i = 0; i < ui->chart->graphCount(); ++i) {
+        QCPGraph *graph = ui->chart->graph(i);
+        // 匹配name（忽略大小写，如需严格匹配可去掉Qt::CaseInsensitive）
+        if (graph->name() == channelName) {
+            // 1. 从customPlot中移除graph
+            ui->chart->removeGraph(graph);
+            // 2. 释放内存（关键！避免内存泄漏）
+//            delete graph;
+//            graph = nullptr;
+            // 3. 刷新绘图
+            ui->chart->replot(QCustomPlot::rpQueuedReplot);
+            ui->chart->update();
+            break;
+        }
+    }
+}
+
+void VoiceChart::updateGraphDataByName(F_M_P fmp)
+{
+    for (int i = 0; i < ui->chart->graphCount(); ++i) {
+        QCPGraph *graph = ui->chart->graph(i);
+        if (graph->name() == fmp.name) { // 严格匹配名称，可改为contains/CaseInsensitive
+            // 替换曲线数据
+            QVector<double> freq;
+            freq.resize(fmp.freq.size());
+            std::transform(fmp.freq.begin(), fmp.freq.end(),
+                           freq.begin(),
+                           [](float f) { return static_cast<double>(f); });
+            QVector<double> magnitude;
+            magnitude.resize(fmp.magnitude.size());
+            std::transform(fmp.magnitude.begin(), fmp.magnitude.end(),
+                           magnitude.begin(),
+                           [](float f) { return static_cast<double>(f); });
+
+            graph->setData(freq, magnitude);
+            ui->chart->replot(QCustomPlot::rpQueuedReplot); // 异步重绘，性能更好
+            ui->chart->update();
+            return;
+        }
+    }
+    QCPGraph* line = ui->chart->addGraph();
+    int i = ui->chart->graphCount();
+    line->setName(fmp.name);
+    line->setAntialiasedFill(true);
+    Qt::PenStyle style = fmp.isTargetCurve ? Qt::PenStyle::DashLine : Qt::PenStyle::SolidLine;
+    QPen pen(QBrush(QColor(qSin(i*1+1.2)*80+80, qSin(i*0.6+0)*80+80, qSin(i*0.6+1.5)*80+80, 220)), 1, style);
+    line->setPen(pen);
+    if (m_type == CHART_TYPE::MAGNITUDE_CHART)
+        line->addData(fmp.freq, fmp.magnitude);
+    else if (m_type == CHART_TYPE::PHASE_CHART)
+        line->addData(fmp.freq, fmp.phase);
+    else
+        ;
+    // 刷新绘图，更新界面
+    ui->chart->replot(QCustomPlot::rpQueuedReplot); // 异步重绘，性能更好
+    ui->chart->update();
+}
+
 void VoiceChart::init()
 {
 //    QLinearGradient plotGradient;
@@ -314,6 +390,17 @@ void VoiceChart::init()
     connect(ui->chart, &QCustomPlot::customContextMenuRequested, [=](const QPoint &pos)
     {
         freq_menu->exec(QCursor::pos());
+    });
+
+    QObject::connect(rangeDebounceTimer, &QTimer::timeout, [=]() {
+        emit rangeChanged();
+    });
+    //range监测
+    connect(ui->chart->xAxis,  QOverload<const QCPRange&>::of(&QCPAxis::rangeChanged), this, [=](const QCPRange& newRange){
+        rangeDebounceTimer->start();
+    });
+    connect(ui->chart->yAxis,  QOverload<const QCPRange&>::of(&QCPAxis::rangeChanged), this, [=](const QCPRange& newRange){
+        rangeDebounceTimer->start();
     });
 }
 

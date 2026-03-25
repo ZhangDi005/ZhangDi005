@@ -59,6 +59,7 @@ void F_M_P::initTargetCurve()
 }
 
 void F_M_P::operator=(F_M_P fmp){
+    name = fmp.name;
     freq = fmp.freq;
     magnitude = fmp.magnitude;
     phase = fmp.phase;

@@ -76,7 +76,7 @@ void CalculateMag::on_importBtn_clicked()
         return;
     }
 
-    QSettings setting("./setting/imPort.ini", QSettings::IniFormat);
+    QSettings setting("./setting/setting.ini", QSettings::IniFormat);
     QString lastPath = setting.value("LastInportwavPath").toString();
     QStringList fileNames = QFileDialog::getOpenFileNames(this,
                                                           "Select one or more files to open",
@@ -135,7 +135,7 @@ void CalculateMag::show_freqPlot()
             break;
         }
     }
-    if (audioDatas.audioData[0].getDataSize() == 0) {
+    if (audioDatas.audioData[0].getDataSize(  ) == 0) {
         ui->freq_chart->clearGraphs();
         ui->phase_chart->clearGraphs();
         return;

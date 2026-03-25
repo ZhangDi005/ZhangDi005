@@ -12,6 +12,43 @@ AdgustMag::AdgustMag(QWidget *parent) :
     ui->phaseChart->setYaxisRange(QPair<int, int>(-200, 200));
 //    ui->listWidget->setGridSize(QSize(292, 35));  // 设置item的宽高
 //    ui->listWidget_EQ->setGridSize(QSize(485, 35));
+
+    //持久化
+    QSettings setting("./setting/setting.ini", QSettings::IniFormat);
+    double specificChartLastRangeX_L = setting.value("specificChartLastRangeX_L").toDouble();
+    double specificChartLastRangeX_U = setting.value("specificChartLastRangeX_U").toDouble();
+    double specificChartLastRangeY_L = setting.value("specificChartLastRangeY_L").toDouble();
+    double specificChartLastRangeY_U = setting.value("specificChartLastRangeY_U").toDouble();
+    QCPRange(specificChartLastRangeX_L,specificChartLastRangeX_U);
+    ui->specificChart->setRange(QPair<QCPRange, QCPRange>(QCPRange(specificChartLastRangeX_L,specificChartLastRangeX_U),
+                                                          QCPRange(specificChartLastRangeY_L,specificChartLastRangeY_U)));
+
+
+    double overallChartLastRangeX_L = setting.value("overallChartLastRangeX_L").toDouble();
+    double overallChartLastRangeX_U = setting.value("overallChartLastRangeX_U").toDouble();
+    double overallChartLastRangeY_L = setting.value("overallChartLastRangeY_L").toDouble();
+    double overallChartLastRangeY_U = setting.value("overallChartLastRangeY_U").toDouble();
+    QCPRange(specificChartLastRangeX_L,specificChartLastRangeX_U);
+    ui->overallChart->setRange(QPair<QCPRange, QCPRange>(QCPRange(overallChartLastRangeX_L,overallChartLastRangeX_U),
+                                                          QCPRange(overallChartLastRangeY_L,overallChartLastRangeY_U)));
+
+    connect(ui->specificChart, &VoiceChart::rangeChanged, [this](){
+        QPair<QCPRange,QCPRange> axis = ui->specificChart->getRange();
+        QSettings setting("./setting/setting.ini", QSettings::IniFormat);
+        setting.setValue("specificChartLastRangeX_L", axis.first.lower);
+        setting.setValue("specificChartLastRangeX_U", axis.first.upper);
+        setting.setValue("specificChartLastRangeY_L", axis.second.lower);
+        setting.setValue("specificChartLastRangeY_U", axis.second.upper);
+    });
+    connect(ui->overallChart, &VoiceChart::rangeChanged, [this](){
+        QPair<QCPRange,QCPRange> axis = ui->overallChart->getRange();
+        QSettings setting("./setting/setting.ini", QSettings::IniFormat);
+        setting.setValue("overallChartLastRangeX_L", axis.first.lower);
+        setting.setValue("overallChartLastRangeX_U", axis.first.upper);
+        setting.setValue("overallChartLastRangeY_L", axis.second.lower);
+        setting.setValue("overallChartLastRangeY_U", axis.second.upper);
+    });
+
     ui->splitter_3->setStretchFactor(0, 85);
     ui->splitter_3->setStretchFactor(1, 15);
     ui->splitter->setStretchFactor(0, 40);
@@ -24,7 +61,7 @@ AdgustMag::AdgustMag(QWidget *parent) :
         connect(btn, &DraftBtn::upData, [=](QString remark){
             ui->lineEdit->setText(remark);
             on_speakerBox_currentIndexChanged(ui->speakerBox->currentText());
-            showPlot();
+            showPlot();//整体修改
         });
         connect(btn, &DraftBtn::backupData, [=](int id){
             App::instance().syncSave(id, ui->lineEdit->text());
@@ -37,8 +74,7 @@ AdgustMag::AdgustMag(QWidget *parent) :
     connect(m_action, &QAction::triggered, [=](){
         AddChannel addchannel;
         if (addchannel.exec() == QDialog::Accepted) {
-            addChannel();
-            showPlot();
+            addChannel(addchannel.getChannel());
         }
     });
     m_menu = new QMenu(this);
@@ -46,7 +82,7 @@ AdgustMag::AdgustMag(QWidget *parent) :
     connect(ui->listWidget->model(), &QAbstractItemModel::rowsMoved, this, [=](const QModelIndex &parent, int start, int end, const QModelIndex &destination, int row) {
         QList<Channel> &project = App::instance().getProject();
         project.move(start, row-1);
-        QSignalBlocker blocker(ui->speakerBox);
+        QSignalBlocker blocker(ui->speakerBox); // 屏蔽信号
         QString currentText = ui->speakerBox->currentText();
         ui->speakerBox->clear();
         for (auto channel : project) {
@@ -71,25 +107,37 @@ AdgustMag::AdgustMag(QWidget *parent) :
 AdgustMag::~AdgustMag()
 {
     delete ui;
+
 }
 
-void AdgustMag::addChannel()
+void AdgustMag::addChannel(Channel channel)
+{
+    QList<Channel> &project = App::instance().getProject();
+    project.push_back(channel);
+    ui->speakerBox->addItem(channel.channelName);
+    ChannelItem * item = new ChannelItem(ui->listWidget);
+    item->init(channel);
+    connect(item, &ChannelItem::dataChanged, this, &AdgustMag::on_dataChanged);// 单独修改
+    connect(item, &ChannelItem::removeChannel, this, &AdgustMag::removeChannel);
+    QListWidgetItem * listItem = new QListWidgetItem(ui->listWidget);
+    listItem->setSizeHint(QSize(312, 31));
+    ui->listWidget->setItemWidget(listItem, item);
+}
+
+void AdgustMag::initChannel()
 {
     ui->listWidget->clear();
     ui->speakerBox->clear();
     QList<Channel> &project = App::instance().getProject();
-    for (auto channel : project) {
-        if (channel.isTargetCurve || channel.seatMag_mIsEmpty()) {
-            ui->speakerBox->addItem(channel.channelName);
-            ChannelItem * item = new ChannelItem(ui->listWidget);
-            item->init(channel);
-            connect(item, &ChannelItem::dataChanged, this, &AdgustMag::showPlot);
-            connect(item, &ChannelItem::channelChanged, this, &AdgustMag::addChannel);
-            QListWidgetItem * listItem = new QListWidgetItem(ui->listWidget);
-            listItem->setSizeHint(QSize(312, 31));
-            ui->listWidget->setItemWidget(listItem, item);
-            continue;
-        }
+    for (auto &channel : project) {
+        ui->speakerBox->addItem(channel.channelName);
+        ChannelItem * item = new ChannelItem(ui->listWidget);
+        item->init(channel);
+        connect(item, &ChannelItem::dataChanged, this, &AdgustMag::on_dataChanged);// 单独修改
+        connect(item, &ChannelItem::removeChannel, this, &AdgustMag::removeChannel);
+        QListWidgetItem * listItem = new QListWidgetItem(ui->listWidget);
+        listItem->setSizeHint(QSize(312, 31));
+        ui->listWidget->setItemWidget(listItem, item);
     }
     showPlot();
 }
@@ -290,7 +338,7 @@ void AdgustMag::aloneShowPort()
             fmp.freq = freq;
             fmp.magnitude = magnitude;
             // 平滑算法 2
-            if (m_curvetype == CURVEMODE::dbFs)
+            if (m_curvetype == CURVEMODE::SPI)
                 toNegation_Y(fmp);
 //            toSmooth(fmp);
         }
@@ -488,7 +536,7 @@ void AdgustMag::on_spaceAllBox_currentIndexChanged(int index)
         }
         fmp.freq = freq;
         fmp.magnitude = magnitude;
-        if (m_curvetype == CURVEMODE::dbFs)
+        if (m_curvetype == CURVEMODE::SPI)
             toNegation_Y(fmp);
         //            toSmooth(fmp);
     }
@@ -499,7 +547,7 @@ void AdgustMag::on_spaceAllBox_currentIndexChanged(int index)
 void AdgustMag::setSmooth(SMOOTH smooth)
 {
     this->smooth = smooth;
-    showPlot();
+    showPlot();//整体修改
 }
 
 bool AdgustMag::eventFilter(QObject *watched, QEvent *event)
@@ -557,7 +605,7 @@ void AdgustMag::on_addBtn_clicked()
     if (ui->speakerBox->currentIndex() == -1) return;
     QList<Channel> &project = App::instance().getProject();
     EqItem *item = new EqItem(ui->speakerBox->currentText(), ui->listWidget_EQ);
-    connect(item, &EqItem::eqDataChanged, this, &AdgustMag::showPlot);
+    connect(item, &EqItem::eqDataChanged, this, &AdgustMag::on_dataChanged);//单独修改
     item->setRow(ui->listWidget_EQ->count());
     QListWidgetItem *widgetItem = new QListWidgetItem(ui->listWidget_EQ);
     widgetItem->setSizeHint(QSize(485, 31));
@@ -587,7 +635,6 @@ void AdgustMag::on_removeBtn_clicked()
     delete it;
     //重新排序
     on_speakerBox_currentIndexChanged(ui->speakerBox->currentText());
-    showPlot();
 }
 
 void AdgustMag::on_micLocation_currentIndexChanged(int index)
@@ -690,7 +737,7 @@ void AdgustMag::on_speakerBox_currentIndexChanged(const QString &arg1)
     }
     for (int i = 0; i < eqs.size(); i++) {
         EqItem *item = new EqItem(arg1, ui->listWidget_EQ);
-        connect(item, &EqItem::eqDataChanged, this, &AdgustMag::showPlot);
+        connect(item, &EqItem::eqDataChanged, this, &AdgustMag::on_dataChanged);//单独
         item->setEqData(i, eqs.at(i));
         QListWidgetItem *widgetItem = new QListWidgetItem(ui->listWidget_EQ);
         ui->listWidget_EQ->setItemWidget(widgetItem, item);
@@ -730,12 +777,11 @@ void AdgustMag::on_pasteBtn_clicked()
     }
     for (int i = 0; i < eqs.size(); i++) {
         EqItem *item = new EqItem(ui->speakerBox->currentText(), ui->listWidget_EQ);
-        connect(item, &EqItem::eqDataChanged, this, &AdgustMag::showPlot);
+        connect(item, &EqItem::eqDataChanged, this, &AdgustMag::on_dataChanged);
         item->setEqData(i, eqs.at(i));
         QListWidgetItem *widgetItem = new QListWidgetItem(ui->listWidget_EQ);
         ui->listWidget_EQ->setItemWidget(widgetItem, item);
     }
-    showPlot();
 }
 
 void AdgustMag::on_checkBox_2_clicked(bool checked)
@@ -769,4 +815,59 @@ void AdgustMag::on_modeSpeakerBox_currentIndexChanged(int index)
     m_curvetype = CURVEMODE(index);
     aloneShowPort();// 左
     on_spaceAllBox_currentIndexChanged(ui->spaceAllBox->currentIndex());//右
+}
+
+void AdgustMag::removeChannel(QString channelName)
+{
+    QList<Channel> &project = App::instance().getProject();
+    for (int i = 0; i < project.size(); i++) {
+        if (project.at(i).channelName == channelName) {
+            project.removeAt(i);
+            break;
+        }
+    }
+    ui->specificChart->removeGraphByName(channelName);
+//    on_spaceAllBox_currentIndexChanged(ui->spaceAllBox->currentIndex());//右
+//    phaseShowPort(); // 下
+}
+
+void AdgustMag::on_dataChanged(QString channelName)
+{
+    QList<Channel> project = App::instance().getProject();
+    F_M_P fmp;
+    for (auto channel : project) {
+        if (channel.channelName == channelName) {
+            if (!channel.m_channelData.m_selected) {
+                ui->specificChart->removeGraphByName(channelName);
+                on_spaceAllBox_currentIndexChanged(ui->spaceAllBox->currentIndex());//右
+                phaseShowPort(); // 下
+                return;
+            }
+            fmp = channelToFmp(channel);
+            break;
+        }
+    }
+    // 平滑算法 1
+    if (!fmp.isEmpty_m() && !fmp.isTargetCurve) {
+        if (m_curvetype == CURVEMODE::dbFs)
+            toNegation_Y(fmp);
+        //            toSmooth(fmp);
+        QVector<float> out_freq,out_magnitude,freq,magnitude;
+        narrow_to_octave(out_freq,out_magnitude,fmp.freq,fmp.magnitude,smooth);
+        for (size_t i = 0; i < out_freq.size(); i++) {
+            if (out_freq.at(i) > 15) {
+                freq.push_back(out_freq.at(i));
+                magnitude.push_back(out_magnitude.at(i));
+            }
+        }
+        fmp.freq = freq;
+        fmp.magnitude = magnitude;
+        // 平滑算法 2
+        if (m_curvetype == CURVEMODE::SPI)
+            toNegation_Y(fmp);
+        //            toSmooth(fmp);
+    }
+    ui->specificChart->updateGraphDataByName(fmp);
+    on_spaceAllBox_currentIndexChanged(ui->spaceAllBox->currentIndex());//右
+    phaseShowPort(); // 下
 }

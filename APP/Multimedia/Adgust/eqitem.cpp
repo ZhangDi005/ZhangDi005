@@ -128,7 +128,7 @@ void EqItem::on_type_currentIndexChanged(int index)
         }
     }
     if (ui->selectedBtn->isChecked())
-        emit eqDataChanged();
+        emit eqDataChanged(m_channelName);
 }
 
 void EqItem::on_Order_currentIndexChanged(const QString &arg1)
@@ -152,7 +152,7 @@ void EqItem::on_spinBox_fc_editingFinished()
         }
     }
     if (ui->selectedBtn->isChecked())
-        emit eqDataChanged();
+        emit eqDataChanged(m_channelName);
 }
 
 void EqItem::on_spinBox_gain_editingFinished()
@@ -164,7 +164,7 @@ void EqItem::on_spinBox_gain_editingFinished()
         }
     }
     if (ui->selectedBtn->isChecked())
-        emit eqDataChanged();
+        emit eqDataChanged(m_channelName);
 }
 
 void EqItem::on_spinBox_q_editingFinished()
@@ -176,7 +176,7 @@ void EqItem::on_spinBox_q_editingFinished()
         }
     }
     if (ui->selectedBtn->isChecked())
-        emit eqDataChanged();
+        emit eqDataChanged(m_channelName);
 }
 
 void EqItem::on_selectedBtn_clicked(bool checked)
@@ -187,6 +187,6 @@ void EqItem::on_selectedBtn_clicked(bool checked)
             channel.m_eq[m_row-1].m_selected = checked;
         }
     }
-    emit eqDataChanged();
+    emit eqDataChanged(m_channelName);
 }
 

@@ -33,18 +33,24 @@ public:
     void upDataAlonePlot(QString name, const QVector<double> &key, const QVector<double> &value);
     void setChartRange();
     void updata();
+    QPair<QCPRange, QCPRange> getRange();
+    void setRange(QPair<QCPRange, QCPRange> range);
+    void removeGraphByName(QString channelName);
+    void updateGraphDataByName(F_M_P fmp);
 private slots:
     void mousePress(QMouseEvent* mevent);
     void mouseMove(QMouseEvent *mevent);
     void mouseRelease(QMouseEvent *mevent);
     void slot_SelectionChanged();
-
+signals:
+    void rangeChanged();
 private:
     void init();
 
 private:
     QCPGraph *find_plot(const QString & name);
     Ui::VoiceChart *ui;
+    QTimer *rangeDebounceTimer;
     QCPItemTracer *tracer;
     QCPItemText *tracerLabel;
     QRubberBand *rubberBand;

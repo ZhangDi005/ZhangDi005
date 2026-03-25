@@ -87,7 +87,7 @@ struct BackupData {
 };
 
 struct Channel{
-    QString channelName;
+    QString channelName = "";
     bool isTargetCurve = false;
     QMap<int, AudioDataManage> seatMag;
     QMap<int, QVector<float>> seatMag_m;
